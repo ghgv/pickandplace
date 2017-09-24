@@ -39,6 +39,10 @@ private slots:
     void command();
     void handleFrame(QImage);
     void Slider(int);
+    void SetOrigin();
+    void Goto();
+    void Pick();
+    void Place();
 
 };
 

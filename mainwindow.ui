@@ -18,19 +18,19 @@
     <property name="geometry">
      <rect>
       <x>750</x>
-      <y>160</y>
+      <y>230</y>
       <width>75</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>Y1</string>
+     <string>Y Down</string>
     </property>
    </widget>
    <widget class="QPushButton" name="Xright">
     <property name="geometry">
      <rect>
-      <x>690</x>
+      <x>830</x>
       <y>200</y>
       <width>75</width>
       <height>23</height>
@@ -43,7 +43,7 @@
    <widget class="QPushButton" name="Xleft">
     <property name="geometry">
      <rect>
-      <x>820</x>
+      <x>680</x>
       <y>200</y>
       <width>75</width>
       <height>23</height>
@@ -57,13 +57,13 @@
     <property name="geometry">
      <rect>
       <x>750</x>
-      <y>230</y>
+      <y>170</y>
       <width>75</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>Y-</string>
+     <string>Y Up</string>
     </property>
    </widget>
    <widget class="QPushButton" name="Zup">
@@ -128,7 +128,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Release</string>
+     <string>Pump Off</string>
     </property>
    </widget>
    <widget class="QPushButton" name="Get">
@@ -141,7 +141,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Get</string>
+     <string>Pump On</string>
     </property>
    </widget>
    <widget class="QScrollArea" name="scroll">
@@ -294,6 +294,214 @@
      <string>Camera angle</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>510</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>X=</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>540</y>
+      <width>21</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Y=</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>570</y>
+      <width>21</width>
+      <height>10</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Z=</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="SetOrigin">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>540</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Set Origin</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="PosX">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>510</y>
+      <width>47</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="PosY">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>540</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="PosZ">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>570</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="PosW">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>590</y>
+      <width>47</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>590</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>W=</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="GotoX">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>640</y>
+      <width>31</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="GotoY">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>640</y>
+      <width>31</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="GotoZ">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>640</y>
+      <width>31</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="GotoW">
+    <property name="geometry">
+     <rect>
+      <x>530</x>
+      <y>640</y>
+      <width>31</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Goto">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>670</y>
+      <width>75</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Go to</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Pick">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>570</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Pick</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Place">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>600</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Place</string>
+    </property>
+   </widget>
    <zorder>scroll</zorder>
    <zorder>Yplus</zorder>
    <zorder>Xright</zorder>
@@ -313,6 +521,22 @@
    <zorder>groupBox_2</zorder>
    <zorder>slider</zorder>
    <zorder>label</zorder>
+   <zorder>label_2</zorder>
+   <zorder>label_3</zorder>
+   <zorder>label_4</zorder>
+   <zorder>SetOrigin</zorder>
+   <zorder>PosX</zorder>
+   <zorder>PosY</zorder>
+   <zorder>PosZ</zorder>
+   <zorder>PosW</zorder>
+   <zorder>label_9</zorder>
+   <zorder>GotoX</zorder>
+   <zorder>GotoY</zorder>
+   <zorder>GotoZ</zorder>
+   <zorder>GotoW</zorder>
+   <zorder>Goto</zorder>
+   <zorder>Pick</zorder>
+   <zorder>Place</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

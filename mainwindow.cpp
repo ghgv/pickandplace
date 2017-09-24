@@ -33,6 +33,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->PosX->setText("0");
+    ui->PosY->setText("0");
+    ui->PosZ->setText("0");
+    ui->PosW->setText("0");
 
   /*
     mCamera=new QCamera(this);
@@ -68,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
     serial->open(QIODevice::ReadWrite);
 
 
-    connect(ui->slider, SIGNAL(valueChanged(int)), this, SLOT(Slider(int)));
+
 
     connect(ui->Zup, SIGNAL(pressed()),this, SLOT(Zup( )));
     connect(ui->Zdown, SIGNAL(pressed()),this, SLOT(Zdown( )));
@@ -82,7 +86,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->rotorleft, SIGNAL(pressed()),this, SLOT(rotorleft( )));
     connect(serial,SIGNAL(readyRead()),this,SLOT(serialreceived()));
     connect(ui->zoom,SIGNAL(pressed()),this,SLOT(zoom()));
-     connect(ui->sendButton, SIGNAL(pressed()),this, SLOT(command( )));
+    connect(ui->sendButton, SIGNAL(pressed()),this, SLOT(command( )));
+    connect(ui->slider, SIGNAL(valueChanged(int)), this, SLOT(Slider(int)));
+    connect(ui->SetOrigin, SIGNAL(pressed()), this, SLOT(SetOrigin()));
+    connect(ui->Goto, SIGNAL(pressed()), this, SLOT(Goto()));
+    connect(ui->Pick, SIGNAL(pressed()), this, SLOT(Pick()));
+    connect(ui->Place, SIGNAL(pressed()), this, SLOT(Place()));
 
     _camera = new QCamera();
     _cameraFrameGrabber = new CameraFrameGrabber();
@@ -91,7 +100,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _camera->start();
 
 
-    serial->write("G92 xo y0 z0\r");
+    serial->write("G92 X0 Y0 X0\r");
 
 
 }
@@ -108,27 +117,33 @@ void MainWindow::Zup()
     s="G0 Z"+s+"\r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
+    ui->PosZ->setText(s);
 }
 
 void MainWindow::Zdown()
 {
     QString s= QString::number((float)--Z);
+    ui->PosZ->setText(s);
     s="G0 Z"+s+"\r";
      serial->write(s.toStdString().c_str());
      qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
+
 }
 
 void MainWindow::Yminus()
 {
     QString s= QString::number((float)--Y);
+    ui->PosY->setText(s);
     s="G0 Y"+s+"\r";
      serial->write(s.toStdString().c_str());
      qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
+
 }
 
 void MainWindow::Yplus()
 {
     QString s= QString::number((float)++Y);
+    ui->PosY->setText(s);
     s="G0 Y"+s+"\r";
      serial->write(s.toStdString().c_str());
      qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
@@ -137,6 +152,7 @@ void MainWindow::Yplus()
 void MainWindow::Xleft()
 {
     QString s= QString::number((float)++X);
+    ui->PosX->setText(s);
     s="G0 X"+s+"\r";
      serial->write(s.toStdString().c_str());
      qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
@@ -145,6 +161,7 @@ void MainWindow::Xleft()
 void MainWindow::Xright()
 {
     QString s= QString::number((float)--X);
+    ui->PosX->setText(s);
     s="G0 X"+s+"\r";
      serial->write(s.toStdString().c_str());
     qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
@@ -281,4 +298,54 @@ void MainWindow::command()
 void MainWindow::Slider(int a)
 {
 camera_angle=a;
-    }
+}
+
+void MainWindow::SetOrigin()
+{
+X=Y=Z=0;
+serial->write("G92 x0 y0 z0\r");
+qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
+}
+
+void MainWindow::Goto()
+{
+    QString s= QString::number((float)++X);
+    ui->PosX->setText(s);
+    s="G0 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
+    serial->write(s.toStdString().c_str());
+
+qDebug()<<"Going to "<<s.toStdString().c_str();
+}
+
+void MainWindow::Pick()
+{
+    QString s;
+    int x,y,z;
+    x=-28+ui->GotoX->text().toInt();
+    y=-13+ui->GotoY->text().toInt();
+    QString m = QString::number(x);
+    QString n = QString::number(y);
+    s="G0 X"+m+" Y"+n+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Going to pick"<<s.toStdString().c_str();
+    x=+28+ui->GotoX->text().toInt();
+    y=+13+ui->GotoY->text().toInt();
+     m = QString::number(x);
+     n = QString::number(y);
+    s="G0 X"+m+" Y"+n+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
+    qDebug()<<"Rerturned "<<s.toStdString().c_str();
+}
+
+void MainWindow::Place()
+{
+    QString s;
+    int x,y,z;
+    x=-28+ui->GotoX->text().toInt();
+    y=-13+ui->GotoY->text().toInt();
+    QString m = QString::number(x);
+    QString n = QString::number(y);
+    s="G0 X"+m+" Y"+n+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
+    //serial->write(s.toStdString().c_str());
+
+qDebug()<<"Going to "<<s.toStdString().c_str();
+}
