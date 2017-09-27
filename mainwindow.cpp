@@ -308,7 +308,7 @@ camera_angle=a;
 void MainWindow::SetOrigin()
 {
 X=Y=Z=0;
-serial->write("G92 x0 y0 z0\r");
+serial->write("G92 X0 X0 X0\r");
 qDebug()<<"Setting origin at: X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 }
 
@@ -328,19 +328,35 @@ void MainWindow::Pick()
 {
     QString s;
     int x,y,z;
-    x=-28+ui->GotoX->text().toInt();
-    y=-13+ui->GotoY->text().toInt();
+    x=-46+ui->GotoX->text().toInt();
+    y=ui->GotoY->text().toInt();
+    z=-3+ui->GotoZ->text().toInt();
     QString m = QString::number(x);
     QString n = QString::number(y);
-    s="G0 X"+m+" Y"+n+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
+    QString p=  QString::number(z);
+    s="G0 X"+m+" Y"+n+" \r";
     serial->write(s.toStdString().c_str());
-    qDebug()<<"Going to pick"<<s.toStdString().c_str();
-    x=+28+ui->GotoX->text().toInt();
-    y=+13+ui->GotoY->text().toInt();
-     m = QString::number(x);
-     n = QString::number(y);
-    s="G0 X"+m+" Y"+n+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
-    qDebug()<<"Rerturned "<<s.toStdString().c_str();
+    qDebug()<<"Going to pick at:"<<s.toStdString().c_str();
+    s="G0 Z"+p+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
+    serial->write("M106\r");//Pump On
+    x=x+46+ui->GotoX->text().toInt();
+    y=y+ui->GotoY->text().toInt();
+    z=z+3+ui->GotoZ->text().toInt();
+    m = QString::number(x);
+    n = QString::number(y);
+    p = QString::number(z);
+    s="G0 Z"+p+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Going up.."<<s.toStdString().c_str();
+
+    s="G0 X"+m+" Y"+n+" \r";
+    qDebug()<<"Returning "<<s.toStdString().c_str();
+    serial->write(s.toStdString().c_str());
+
+
+
 }
 
 void MainWindow::Place()
