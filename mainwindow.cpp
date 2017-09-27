@@ -244,8 +244,10 @@ void MainWindow::handleFrame(QImage imageObject)
     QMatrix matrix;
     matrix.rotate(camera_angle);
     value = qRgb(0, 0, 0); // 0xffbd9527
+
     imageObject=imageObject.transformed(matrix);
-    imageObject.setPixel(1, 1, value);
+    imageObject=imageObject.copy();
+   // imageObject.setPixel(1, 1, value);
     int y,x;
        for ( y=0;y<height;++y) {
                  imageObject.setPixel(640/2, 480/2-height/2+y, value);
@@ -274,9 +276,12 @@ void MainWindow::handleFrame(QImage imageObject)
 
 
     QPixmap pixmap = QPixmap::fromImage(imageObject);
-    scene->addPixmap(pixmap);
+    ui->pic->setPixmap(pixmap);
+    this->update();
+    /*scene->addPixmap(pixmap);
 
     ui->graphicsView->setScene(scene);
+    ui->graphicsView->show();/*
 
     //delete scene;
     //ui->mylabel->setPixmap(QPixmap::fromImage(imageObject));
@@ -304,7 +309,7 @@ void MainWindow::SetOrigin()
 {
 X=Y=Z=0;
 serial->write("G92 x0 y0 z0\r");
-qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
+qDebug()<<"Setting origin at: X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 }
 
 void MainWindow::Goto()
@@ -312,9 +317,11 @@ void MainWindow::Goto()
     QString s= QString::number((float)++X);
     ui->PosX->setText(s);
     s="G0 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
+    qDebug()<<"Going to "<<s.toStdString().c_str();
+    s="G0 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+"\r";
     serial->write(s.toStdString().c_str());
 
-qDebug()<<"Going to "<<s.toStdString().c_str();
+
 }
 
 void MainWindow::Pick()

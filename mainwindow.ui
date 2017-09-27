@@ -502,6 +502,19 @@
      <string>Place</string>
     </property>
    </widget>
+   <widget class="QLabel" name="pic">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>641</width>
+      <height>491</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
    <zorder>scroll</zorder>
    <zorder>Yplus</zorder>
    <zorder>Xright</zorder>
@@ -537,6 +550,7 @@
    <zorder>Goto</zorder>
    <zorder>Pick</zorder>
    <zorder>Place</zorder>
+   <zorder>pic</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
