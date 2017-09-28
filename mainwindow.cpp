@@ -234,10 +234,6 @@ void MainWindow::zoom(){
 
 void MainWindow::handleFrame(QImage imageObject)
 {
-   // QImage imageObject(256,256,QImage::Format_ARGB32);
-   // imageObject.load("C:/audio.png");
-   // imageObject.setColorCount(22);
-    //QGraphicsScene *scene = new QGraphicsScene ();
     int width=60;
     int height=60;
     QRgb value;
@@ -247,7 +243,7 @@ void MainWindow::handleFrame(QImage imageObject)
 
     imageObject=imageObject.transformed(matrix);
     imageObject=imageObject.copy();
-   // imageObject.setPixel(1, 1, value);
+   //imageObject.setPixel(1, 1, value);
     int y,x;
        for ( y=0;y<height;++y) {
                  imageObject.setPixel(640/2, 480/2-height/2+y, value);
@@ -257,9 +253,22 @@ void MainWindow::handleFrame(QImage imageObject)
                  imageObject.setPixel(640/2-width/2+x, 480/2, value);
 
            }
-   QPoint p;
-   int r,g,b,a;
-   QColor colors;
+
+   QPainter p;
+     if (!p.begin(&imageObject))
+     {
+     }
+        p.setPen(QPen(Qt::white));
+        p.setFont(QFont("Arial",  12, QFont::Bold));
+        QString sx= QString::number((float)X);
+        QString sy= QString::number((float)Y);
+        QString sz= QString::number((float)Z);
+        QString sw= QString::number((float)W);
+        QString s;
+        s="X:"+sx+" Y:"+sy+" Z:"+sz+" W:"+sw;
+        p.drawText(imageObject.rect(), Qt::AlignTop,s);
+
+
 /*
    for (y=0;y<480;++y) // setting to gray
        for(x=0;x<640;++x)
@@ -278,16 +287,6 @@ void MainWindow::handleFrame(QImage imageObject)
     QPixmap pixmap = QPixmap::fromImage(imageObject);
     ui->pic->setPixmap(pixmap);
     this->update();
-    /*scene->addPixmap(pixmap);
-
-    ui->graphicsView->setScene(scene);
-    ui->graphicsView->show();/*
-
-    //delete scene;
-    //ui->mylabel->setPixmap(QPixmap::fromImage(imageObject));
-    /*OR use the other way by setting the Pixmap directly
-    QPixmap pixmapObject(imagePath");
-    ui->myLabel2->setPixmap(pixmapObject);*/
 
 }
 
@@ -328,9 +327,9 @@ void MainWindow::Pick()
 {
     QString s;
     int x,y,z;
-    x=-46+ui->GotoX->text().toInt();
-    y=ui->GotoY->text().toInt();
-    z=-3+ui->GotoZ->text().toInt();
+    x=-46+X;
+    y=Y;
+    z=-4+Z;
     QString m = QString::number(x);
     QString n = QString::number(y);
     QString p=  QString::number(z);
@@ -341,9 +340,9 @@ void MainWindow::Pick()
     serial->write(s.toStdString().c_str());
     qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
     serial->write("M106\r");//Pump On
-    x=x+46+ui->GotoX->text().toInt();
-    y=y+ui->GotoY->text().toInt();
-    z=z+3+ui->GotoZ->text().toInt();
+    x=x+46+X;
+    y=y+Y;
+    z=z+4+Z;
     m = QString::number(x);
     n = QString::number(y);
     p = QString::number(z);
@@ -363,12 +362,30 @@ void MainWindow::Place()
 {
     QString s;
     int x,y,z;
-    x=-28+ui->GotoX->text().toInt();
-    y=-13+ui->GotoY->text().toInt();
+    x=-46+X;
+    y=Y;
+    z=-4+Z;
     QString m = QString::number(x);
     QString n = QString::number(y);
-    s="G0 X"+m+" Y"+n+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
-    //serial->write(s.toStdString().c_str());
+    QString p=  QString::number(z);
+    s="G0 X"+m+" Y"+n+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Going to pick at:"<<s.toStdString().c_str();
+    s="G0 Z"+p+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
+    serial->write("M107\r");//Pump Off
+    x=x+46+X;
+    y=y+Y;
+    z=z+4+Z;
+    m = QString::number(x);
+    n = QString::number(y);
+    p = QString::number(z);
+    s="G0 Z"+p+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Going up.."<<s.toStdString().c_str();
 
-qDebug()<<"Going to "<<s.toStdString().c_str();
+    s="G0 X"+m+" Y"+n+" \r";
+    qDebug()<<"Returning "<<s.toStdString().c_str();
+    serial->write(s.toStdString().c_str());
 }
