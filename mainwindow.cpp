@@ -13,18 +13,21 @@
 
 
 QSerialPort *serial;
-QString str;
+QString str,deltaf;
 QCamera *mCamera;
 QCameraViewfinder *mCameraViewfinder;
 QVBoxLayout *mLayout;
 int camera_angle=0;
+int offsetX=-42.1;
+int offsetY=-6;
+int offsetZ=3;
+float delta=0.1;
 
 
 QCamera *_camera;
-//MyVideoSurface *mVideo;
 CameraFrameGrabber *_cameraFrameGrabber;
 
-int X,Y,Z;
+float X,Y,Z;
 float W=0;//positions of the grip
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -38,30 +41,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->PosZ->setText("0");
     ui->PosW->setText("0");
 
-  /*
-    mCamera=new QCamera(this);
-    mCameraViewfinder = new QCameraViewfinder(this);
-    mCamera->setViewfinder(mCameraViewfinder);
-    mLayout = new QVBoxLayout;
-
-     mCameraViewfinder->show();
-
-    mCamera->start(); // to start the viewfinder
-
-    mLayout->addWidget(mCameraViewfinder);
-    mLayout->setMargin(0);
-    ui->scroll->setLayout(mLayout);
-*/
-
-    /*_camera = new QCamera(this);
-    _cameraFrameGrabber = new CameraFrameGrabber();
-    _camera->setViewfinder(_cameraFrameGrabber);
-    connect(_cameraFrameGrabber, SIGNAL(frameAvailable(QImage)), this, SLOT(handleFrame(QImage)));
-    _camera->start();*/
-
-
     serial= new QSerialPort(this);
     str=ui->port->text();
+    deltaf=ui->delta->text();
+    delta=deltaf.toFloat();
     serial->setPortName(str);
 
     serial->setBaudRate(QSerialPort::Baud115200);
@@ -92,6 +75,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->Goto, SIGNAL(pressed()), this, SLOT(Goto()));
     connect(ui->Pick, SIGNAL(pressed()), this, SLOT(Pick()));
     connect(ui->Place, SIGNAL(pressed()), this, SLOT(Place()));
+    connect(ui->HomeX, SIGNAL(pressed()), this, SLOT(HomeX()));
+    connect(ui->HomeY, SIGNAL(pressed()), this, SLOT(HomeY()));
+    connect(ui->HomeZ, SIGNAL(pressed()), this, SLOT(HomeZ()));
 
     _camera = new QCamera();
     _cameraFrameGrabber = new CameraFrameGrabber();
@@ -113,7 +99,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::Zup()
 {
-    QString s= QString::number((float)++Z);
+    deltaf=ui->delta->text();
+    delta=deltaf.toFloat();
+    Z=Z+delta;
+    QString s= QString::number(Z);
     s="G0 Z"+s+"\r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
@@ -122,7 +111,10 @@ void MainWindow::Zup()
 
 void MainWindow::Zdown()
 {
-    QString s= QString::number((float)--Z);
+    deltaf=ui->delta->text();
+    delta=deltaf.toFloat();
+    Z=Z-delta;
+    QString s= QString::number(Z);
     ui->PosZ->setText(s);
     s="G0 Z"+s+"\r";
      serial->write(s.toStdString().c_str());
@@ -132,7 +124,10 @@ void MainWindow::Zdown()
 
 void MainWindow::Yminus()
 {
-    QString s= QString::number((float)--Y);
+    deltaf=ui->delta->text();
+    delta=deltaf.toFloat();
+    Y=Y-delta;
+    QString s= QString::number(Y);
     ui->PosY->setText(s);
     s="G0 Y"+s+"\r";
      serial->write(s.toStdString().c_str());
@@ -142,7 +137,10 @@ void MainWindow::Yminus()
 
 void MainWindow::Yplus()
 {
-    QString s= QString::number((float)++Y);
+    deltaf=ui->delta->text();
+    delta=deltaf.toFloat();
+    Y=Y+delta;
+    QString s= QString::number(Y);
     ui->PosY->setText(s);
     s="G0 Y"+s+"\r";
      serial->write(s.toStdString().c_str());
@@ -151,7 +149,10 @@ void MainWindow::Yplus()
 
 void MainWindow::Xleft()
 {
-    QString s= QString::number((float)++X);
+    deltaf=ui->delta->text();
+    delta=deltaf.toFloat();
+    X=X-delta;
+    QString s= QString::number(X);
     ui->PosX->setText(s);
     s="G0 X"+s+"\r";
      serial->write(s.toStdString().c_str());
@@ -160,7 +161,10 @@ void MainWindow::Xleft()
 
 void MainWindow::Xright()
 {
-    QString s= QString::number((float)--X);
+    deltaf=ui->delta->text();
+    delta=deltaf.toFloat();
+    X=X+delta;
+    QString s= QString::number(X);
     ui->PosX->setText(s);
     s="G0 X"+s+"\r";
      serial->write(s.toStdString().c_str());
@@ -170,27 +174,33 @@ void MainWindow::Xright()
 void MainWindow::Get()
 {
 
-     serial->write("M106\r");
+     //serial->write("M106\r"); For Marlin
+     serial->write("M3\r"); //Laser/Pump On
+
 }
 void MainWindow::Release()
 {
-     serial->write("M107\r");
+    // serial->write("M107\r"); For Marlin
+    serial->write("M4\r"); //Laser/Pump Off
 }
 
 void MainWindow::rotorright()
 {
-     serial->write("M302 S0\r");
+    /* serial->write("M302 S0\r");
      serial->write("M83 S0\r");
-     serial->write("G1 E-0.1\r");
-     W=W-0.1;
+     serial->write("G1 E-0.1\r");*/ //For Marlin
+     serial->write("G1 E-0.1\r");  //For GerCode
+     W=W-delta;
      qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 }
 void MainWindow::rotorleft()
 {
-     serial->write("M302 S0\r");
+     /*serial->write("M302 S0\r");
      serial->write("M83\r");
-     serial->write("G1 E0.1\r");
-     W=W+0.1;
+     serial->write("G1 E0.1\r");*/
+     serial->write("G1 E0.1\r");  //For GerCode
+     W=W-delta;
+     W=W+delta;
      qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 }
 
@@ -213,6 +223,7 @@ int MainWindow::serialreceived()
 {
 
     QByteArray data = serial->readAll();
+    ui->Messages->appendPlainText(data);
 
    // parse((char *)data.constData());
 
@@ -229,21 +240,20 @@ void MainWindow::zoom(){
     else
     {
         mCameraViewfinder->setGeometry(0,0,375,380);		// zoom out
+        //mCameraViewfinder->setGeometry(375,380,0,0);		// zoom out
     }
 }
 
 void MainWindow::handleFrame(QImage imageObject)
 {
-    int width=60;
-    int height=60;
+    int width=460;
+    int height=460;
     QRgb value;
-    QMatrix matrix;
-    matrix.rotate(camera_angle);
-    value = qRgb(0, 0, 0); // 0xffbd9527
-
+    QTransform matrix(-1,0,0,0,1,0,0,0,1); // m11=-1 : flipping horizontal. I do not know why
+    value = qRgb(100, 0, 0); // 0xffbd9527
     imageObject=imageObject.transformed(matrix);
     imageObject=imageObject.copy();
-   //imageObject.setPixel(1, 1, value);
+
     int y,x;
        for ( y=0;y<height;++y) {
                  imageObject.setPixel(640/2, 480/2-height/2+y, value);
@@ -306,18 +316,27 @@ camera_angle=a;
 
 void MainWindow::SetOrigin()
 {
-X=Y=Z=0;
-serial->write("G92 X0 X0 X0\r");
+X=Y=Z=W=0;
+serial->write("G92 X0 Y0 Z0\r");
 qDebug()<<"Setting origin at: X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
+ui->PosX->setText("0");
+ui->PosY->setText("0");
+ui->PosZ->setText("0");
+ui->PosW->setText("0");
+
 }
 
 void MainWindow::Goto()
 {
-    QString s= QString::number((float)++X);
+    QString s= QString::number(X);
     ui->PosX->setText(s);
-    s="G0 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
+    //s="G0 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
+    s="G0 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" \r";
+    X=ui->GotoX->text().toFloat();
+    Y=ui->GotoY->text().toFloat();
+    //Z=ui->GotoZ->text().toFloat();
     qDebug()<<"Going to "<<s.toStdString().c_str();
-    s="G0 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+"\r";
+    //s="G0 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+"\r";
     serial->write(s.toStdString().c_str());
 
 
@@ -326,10 +345,10 @@ void MainWindow::Goto()
 void MainWindow::Pick()
 {
     QString s;
-    int x,y,z;
-    x=-46+X;
-    y=Y;
-    z=-4+Z;
+    float x,y,z;
+    x=offsetX+X;
+    y=offsetY+Y;
+    z=offsetZ;
     QString m = QString::number(x);
     QString n = QString::number(y);
     QString p=  QString::number(z);
@@ -339,10 +358,10 @@ void MainWindow::Pick()
     s="G0 Z"+p+" \r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
-    serial->write("M106\r");//Pump On
-    x=x+46+X;
-    y=y+Y;
-    z=z+4+Z;
+    serial->write("M3\r");//Pump On
+    x=x-offsetX;
+    y=y-offsetY;
+    z=Z;
     m = QString::number(x);
     n = QString::number(y);
     p = QString::number(z);
@@ -361,10 +380,10 @@ void MainWindow::Pick()
 void MainWindow::Place()
 {
     QString s;
-    int x,y,z;
-    x=-46+X;
-    y=Y;
-    z=-4+Z;
+    float x,y,z;
+    x=offsetX+X;
+    y=offsetY+Y;
+    z=offsetZ;
     QString m = QString::number(x);
     QString n = QString::number(y);
     QString p=  QString::number(z);
@@ -374,10 +393,10 @@ void MainWindow::Place()
     s="G0 Z"+p+" \r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
-    serial->write("M107\r");//Pump Off
-    x=x+46+X;
-    y=y+Y;
-    z=z+4+Z;
+    serial->write("M4\r");//Pump Off
+    x=x-offsetX;
+    y=y-offsetY;
+    z=Z;
     m = QString::number(x);
     n = QString::number(y);
     p = QString::number(z);
@@ -388,4 +407,31 @@ void MainWindow::Place()
     s="G0 X"+m+" Y"+n+" \r";
     qDebug()<<"Returning "<<s.toStdString().c_str();
     serial->write(s.toStdString().c_str());
+}
+
+void MainWindow::HomeX()
+{
+
+serial->write("G28 X0\r");
+X=0;
+ui->PosX->setText("0");
+qDebug()<<"Homing X";
+}
+
+void MainWindow::HomeY()
+{
+Y=0;
+serial->write("G28 Y0\r");
+ui->PosY->setText("0");
+qDebug()<<"Homing X";
+}
+
+void MainWindow::HomeZ()
+{
+Z=0;
+serial->write("G28 Z0\r");
+ui->PosZ->setText("0");
+qDebug()<<"Homing Z";
+Z=Z+11.2;
+serial->write("G0 Z10\r");
 }

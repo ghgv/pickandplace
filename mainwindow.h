@@ -43,6 +43,9 @@ private slots:
     void Goto();
     void Pick();
     void Place();
+    void HomeX();
+    void HomeY();
+    void HomeZ();
 
 };
 
