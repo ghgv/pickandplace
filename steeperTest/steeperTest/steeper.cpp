@@ -1,7 +1,7 @@
-#include <Cmd.h>
+#include "command.h"
 #include "steeper.h"
 
-motor::motor(int Step_enabled,int Step_pin,int Step_dir,int Interrupt_pin,bool sentido,int number){
+motor::motor(int Step_enabled,int Step_pin,int Step_dir,byte *Interrupt_pin,bool sentido,int number){
   
   pinMode(Step_dir, OUTPUT);
   pinMode(Step_pin, OUTPUT);
@@ -11,7 +11,7 @@ motor::motor(int Step_enabled,int Step_pin,int Step_dir,int Interrupt_pin,bool s
   digitalWrite(Step_enabled,LOW);
 
  
-  this->intT=0;  
+  this->intT=Interrupt_pin;  
   this->step_pin=Step_pin;
   this->step_dir=Step_dir;
   this->step_enabled=Step_enabled;
@@ -25,9 +25,13 @@ motor::motor(int Step_enabled,int Step_pin,int Step_dir,int Interrupt_pin,bool s
 }
 
 
-int motor::run(){
-  
-    
+int motor::run(){   
+   if(*intT==1)
+    {
+      Stepping = false;
+      DISTANCE=StepCounter;
+      return -1;
+    } 
   if (Stepping == true && DISTANCE!=StepCounter )
   {
     digitalWrite(this->step_pin, HIGH);
@@ -37,14 +41,13 @@ int motor::run(){
     //delay(1);
     delayMicroseconds(50);
 
-    //  Serial.print("RUN: ");
-    //Serial.println(this->DISTANCE-StepCounter);
+ 
     
     StepCounter = StepCounter + delta;
 
     if (StepCounter == DISTANCE)
     {
-      //StepCounter = 0;
+ 
       Stepping = false;
       return 0;
     }
@@ -55,26 +58,29 @@ int motor::run(){
 
 int motor::moveto(long position){
     
-    
-     this->DISTANCE=position;
-     if(DISTANCE>=StepCounter){
-      digitalWrite(this->step_dir, sense);
+    if(*intT!=1)
+    {
+      this->DISTANCE=position;
+      if(DISTANCE>=StepCounter){
+        digitalWrite(this->step_dir, sense);
       delta=1;
-    }
-    if(DISTANCE<StepCounter){
-      digitalWrite(this->step_dir, !sense);
-      delta=-1;
-    }
+      }
+      if(DISTANCE<StepCounter){
+        digitalWrite(this->step_dir, !sense);
+        delta=-1;
+        }
     Stepping=true;
     return 1; 
+    }
+    else{
+      
+      }
+    return 0;
         
 }
 
 int motor::distancetoGo(){
-     // Serial.print("DTG: ");
-     // Serial.println(this->DISTANCE-StepCounter);
       return this->DISTANCE-StepCounter;
-   
   
 }
 
@@ -86,13 +92,14 @@ int motor::cicle(){
 }
 
 int motor::limit(){
-   
+    state=1;
+    DISTANCE=StepCounter=0;
     Serial.print("Interrupted: ");
     //Serial.println(state);
 
 }
-
 void motor::stop(){
-  Serial.println("Stopped");
+
+  
 }
 

@@ -103,7 +103,7 @@ void MainWindow::Zup()
     delta=deltaf.toFloat();
     Z=Z+delta;
     QString s= QString::number(Z);
-    s="G0 Z"+s+"\r";
+    s="G1 Z"+s+"\r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
     ui->PosZ->setText(s);
@@ -116,7 +116,7 @@ void MainWindow::Zdown()
     Z=Z-delta;
     QString s= QString::number(Z);
     ui->PosZ->setText(s);
-    s="G0 Z"+s+"\r";
+    s="G1 Z"+s+"\r";
      serial->write(s.toStdString().c_str());
      qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 
@@ -129,7 +129,7 @@ void MainWindow::Yminus()
     Y=Y-delta;
     QString s= QString::number(Y);
     ui->PosY->setText(s);
-    s="G0 Y"+s+"\r";
+    s="G1 Y"+s+"\r";
      serial->write(s.toStdString().c_str());
      qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 
@@ -142,7 +142,7 @@ void MainWindow::Yplus()
     Y=Y+delta;
     QString s= QString::number(Y);
     ui->PosY->setText(s);
-    s="G0 Y"+s+"\r";
+    s="G1 Y"+s+"\r";
      serial->write(s.toStdString().c_str());
      qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 }
@@ -154,7 +154,7 @@ void MainWindow::Xleft()
     X=X-delta;
     QString s= QString::number(X);
     ui->PosX->setText(s);
-    s="G0 X"+s+"\r";
+    s="G1 X"+s+"\r";
      serial->write(s.toStdString().c_str());
      qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 }
@@ -166,7 +166,7 @@ void MainWindow::Xright()
     X=X+delta;
     QString s= QString::number(X);
     ui->PosX->setText(s);
-    s="G0 X"+s+"\r";
+    s="G1 X"+s+"\r";
      serial->write(s.toStdString().c_str());
     qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 }
@@ -188,8 +188,8 @@ void MainWindow::rotorright()
 {
     /* serial->write("M302 S0\r");
      serial->write("M83 S0\r");
-     serial->write("G1 E-0.1\r");*/ //For Marlin
-     serial->write("G1 E-0.1\r");  //For GerCode
+     serial->write("G1 E-1\r");*/ //For Marlin
+     serial->write("G1 E-1\r");  //For GerCode
      W=W-delta;
      qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 }
@@ -197,8 +197,8 @@ void MainWindow::rotorleft()
 {
      /*serial->write("M302 S0\r");
      serial->write("M83\r");
-     serial->write("G1 E0.1\r");*/
-     serial->write("G1 E0.1\r");  //For GerCode
+     serial->write("G1 E1\r");*/
+     serial->write("G1 E1\r");  //For GerCode
      W=W-delta;
      W=W+delta;
      qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
@@ -330,13 +330,13 @@ void MainWindow::Goto()
 {
     QString s= QString::number(X);
     ui->PosX->setText(s);
-    //s="G0 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
-    s="G0 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" \r";
+    //s="G1 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
+    s="G1 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" \r";
     X=ui->GotoX->text().toFloat();
     Y=ui->GotoY->text().toFloat();
     //Z=ui->GotoZ->text().toFloat();
     qDebug()<<"Going to "<<s.toStdString().c_str();
-    //s="G0 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+"\r";
+    //s="G1 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+"\r";
     serial->write(s.toStdString().c_str());
 
 
@@ -352,10 +352,10 @@ void MainWindow::Pick()
     QString m = QString::number(x);
     QString n = QString::number(y);
     QString p=  QString::number(z);
-    s="G0 X"+m+" Y"+n+" \r";
+    s="G1 X"+m+" Y"+n+" \r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"Going to pick at:"<<s.toStdString().c_str();
-    s="G0 Z"+p+" \r";
+    s="G1 Z"+p+" \r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
     serial->write("M3\r");//Pump On
@@ -365,11 +365,11 @@ void MainWindow::Pick()
     m = QString::number(x);
     n = QString::number(y);
     p = QString::number(z);
-    s="G0 Z"+p+" \r";
+    s="G1 Z"+p+" \r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"Going up.."<<s.toStdString().c_str();
 
-    s="G0 X"+m+" Y"+n+" \r";
+    s="G1 X"+m+" Y"+n+" \r";
     qDebug()<<"Returning "<<s.toStdString().c_str();
     serial->write(s.toStdString().c_str());
 
@@ -387,10 +387,10 @@ void MainWindow::Place()
     QString m = QString::number(x);
     QString n = QString::number(y);
     QString p=  QString::number(z);
-    s="G0 X"+m+" Y"+n+" \r";
+    s="G1 X"+m+" Y"+n+" \r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"Going to pick at:"<<s.toStdString().c_str();
-    s="G0 Z"+p+" \r";
+    s="G1 Z"+p+" \r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
     serial->write("M4\r");//Pump Off
@@ -400,11 +400,11 @@ void MainWindow::Place()
     m = QString::number(x);
     n = QString::number(y);
     p = QString::number(z);
-    s="G0 Z"+p+" \r";
+    s="G1 Z"+p+" \r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"Going up.."<<s.toStdString().c_str();
 
-    s="G0 X"+m+" Y"+n+" \r";
+    s="G1 X"+m+" Y"+n+" \r";
     qDebug()<<"Returning "<<s.toStdString().c_str();
     serial->write(s.toStdString().c_str());
 }
@@ -433,5 +433,5 @@ serial->write("G28 Z0\r");
 ui->PosZ->setText("0");
 qDebug()<<"Homing Z";
 Z=Z+11.2;
-serial->write("G0 Z10\r");
+serial->write("G1 Z10\r");
 }

@@ -14,18 +14,18 @@ class motor{
     bool Stepping=0;
     long StepCounter;
     volatile byte state;
-    volatile int *intT;
+    volatile byte *intT;
     
     float DISTANCE=0;
     int step_pin,step_dir,step_enabled;
-    motor(int Step_enabled,int Step_pin,int Step_dir,int Interrupt_pin,bool sentido,int number);
+    motor(int Step_enabled,int Step_pin,int Step_dir,byte *Interrupt_pin,bool sentido,int number);
     ~motor(){};  
     int run();
+    void stop();
     int cicle();
     int limit();
     int moveto(long position);
     int distancetoGo();
-    void stop();
     
 
 

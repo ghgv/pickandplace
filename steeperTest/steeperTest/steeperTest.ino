@@ -1,5 +1,5 @@
 
-#include <Cmd.h>
+#include "command.h"
 #include <U8g2lib.h>
 #include "steeper.h"
 //#include <AccelStepper.h>
@@ -8,7 +8,7 @@
 
 #define TEMP_0_PIN         13   // Analog Input
 
-//#define DISTANCE 3200
+
 
 #define E0_STEP_PIN         26 //
 #define E0_DIR_PIN          28
@@ -32,22 +32,23 @@
 #define Y_ENABLE_PIN       62
 #define Y_MIN_PIN          18
 #define Y_MAX_PIN          19
+const byte BUTTON =3;
 
 #define PUMP               9  //The pump
 int a;
 volatile int intE;
-volatile int intX ,intY,intZ;
+volatile byte intX=0,intY,intZ;
 float xvalue,yvalue;
 float Factor2=1;
 float microstepsG=400;  //factor to adjust movements of the axis
 
-//#define DISTANCE 3200
+
 int StepCounter = 0;
 int Stepping = false;
 motor E0(E0_ENABLE_PIN,E0_STEP_PIN,E0_DIR_PIN,E0_MIN_PIN,1,4);
-motor X(X_ENABLE_PIN,X_STEP_PIN,X_DIR_PIN,X_MIN_PIN,0,1);
-motor Y(Y_ENABLE_PIN,Y_STEP_PIN,Y_DIR_PIN,Y_MIN_PIN,1,2);
-motor Z(Z_ENABLE_PIN,Z_STEP_PIN,Z_DIR_PIN,Z_MIN_PIN,1,3);
+motor X(X_ENABLE_PIN,X_STEP_PIN,X_DIR_PIN,&intX,0,1);
+motor Y(Y_ENABLE_PIN,Y_STEP_PIN,Y_DIR_PIN,&intY,1,2);
+motor Z(Z_ENABLE_PIN,Z_STEP_PIN,Z_DIR_PIN,&intZ,1,3);
 
 #define LCD_PINS_RS     16
 #define LCD_PINS_ENABLE 17
@@ -70,9 +71,10 @@ void draw(void){
 
 void setup() {                
   
-  
+
+  Serial.println("PnP v1.0 8OCT2018");
   cmdInit(115200);
-  Serial.println("Stepper v1.0 08OCT2018");
+  
   cmdAdd("pos",positioner);
   cmdAdd("M17", M17);
   cmdAdd("M18", M18);
@@ -83,7 +85,9 @@ void setup() {
   cmdAdd("G1",G1);
   cmdAdd("G28",G28);
   cmdAdd("G92",G92);
+  cmdAdd("M112",M112);
   cmdAdd("M114",M114);
+  cmdAdd("M999",M999);
   pinMode(PUMP, OUTPUT);           
   digitalWrite(PUMP, HIGH);       
   
@@ -94,22 +98,24 @@ void setup() {
   // u8g.drawStr(0,11,"www.dali.com.co");
 
    pinMode(X_MIN_PIN, INPUT_PULLUP);
-   attachInterrupt(digitalPinToInterrupt(X_MIN_PIN), Xlimit, CHANGE);
+   attachInterrupt(digitalPinToInterrupt(X_MIN_PIN), Xlimit, HIGH);
    pinMode(Y_MIN_PIN, INPUT_PULLUP);
-   attachInterrupt(digitalPinToInterrupt(Y_MIN_PIN), Ylimit, CHANGE);
+   attachInterrupt(digitalPinToInterrupt(Y_MIN_PIN), Ylimit, HIGH);
    pinMode(Z_MIN_PIN, INPUT_PULLUP);
-   attachInterrupt(digitalPinToInterrupt(Z_MIN_PIN), Zlimit, CHANGE);
+   attachInterrupt(digitalPinToInterrupt(Z_MIN_PIN), Zlimit, HIGH);
    u8g.clearBuffer();
    u8g.setFont(u8g_font_6x12);
    u8g.drawStr(0,11,"www.dali.com.co");
-   u8g.drawStr(0,22,"Temperatura: ");
+   u8g.drawStr(0,22,"Temperatura ambiente: ");
    //u8g.drawStr(0,32,String(celsius,10).c_str());
    u8g.sendBuffer();
    
    
-   X.state=0;
-   Y.state=0;
-   Z.state=0;
+   *X.intT=0;
+   *Y.intT=0;
+   *Z.intT=0;
+     pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
 }
 
 void loop() {
@@ -124,8 +130,6 @@ void loop() {
    int celsius = read_temp();
    int fahrenheit = (((celsius * 9) / 5) + 32);*/
     //delay(1000);*/
-  
- 
   
 }
 
@@ -173,6 +177,8 @@ void positioner(int arg_cnt,char **args)//pos
 if(strcmp(args[1],"X")==0)
     {
       while(X.distancetoGo()!=0){
+        if(intX==1)
+          X.stop();
         X.run();
         }
       X.moveto(yvalue*microstepsG/Factor2);
@@ -242,11 +248,11 @@ int read_temp()
 }
 
 
-void G0(int arg_cnt,char **args)//G0
+void G1(int arg_cnt,char **args)//G0
 {
   int i=1;
   int n=0;
-  Serial.print("G0 ");
+  Serial.print("G1 ");
   String command[5];
   while(args[i]!=NULL){
     command[i]=args[i];
@@ -317,7 +323,7 @@ void G0(int arg_cnt,char **args)//G0
 }
 
 
-void G1(int arg_cnt,char **args)//G1
+void G0(int arg_cnt,char **args)//G1
 {
   int i=1;
   while(args[i++]!=NULL){
@@ -421,18 +427,33 @@ void G28(int arg_cnt,char **args)//G1
   Serial.print(*(X.intT));
 }
 
+void M112(int arg_cnt,char **args)//Missing implementing a lot of shutdowns
+{
+  intX=intY=intZ=1;
+  Serial.println("Emergency stop");
+}
+
+void M999(int arg_cnt,char **args)//Restart 
+{
+  intX=intY=intZ=0;
+  Serial.println("Restart");
+}
+
+
 void Xlimit(){
   intX=1;
-
+  Serial.println("Limit X reached");
 }
 
 void Ylimit(){
   intY=1;
+  Serial.println("Limit Y reached");
 
 }
 
 void Zlimit(){
   intZ=1;
+  Serial.println("Limit Z reached");
 
 }
 
