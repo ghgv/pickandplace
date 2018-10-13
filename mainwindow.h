@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QImage>
 #include <QGraphicsScene>
 
 
@@ -46,7 +47,12 @@ private slots:
     void HomeX();
     void HomeY();
     void HomeZ();
+    void BMP_GetPixelRGB(QImage imageObject,int x,int y, int  *r1, int *g1, int *b1);
+    void BMP_SetPixelRGB(QImage imageObject,int x,int y,int  r1,int g1,int  b1);
 
+
+    void on_PLCC28_clicked();
+    void on_TQFP44_clicked();
 };
 
 #endif // MAINWINDOW_H

@@ -10,6 +10,7 @@
 #include <QTimer>
 #include <string.h>
 #include "cameraframegrabber.h"
+#include "rectangle.h"
 
 
 QSerialPort *serial;
@@ -17,10 +18,12 @@ QString str,deltaf;
 QCamera *mCamera;
 QCameraViewfinder *mCameraViewfinder;
 QVBoxLayout *mLayout;
-int camera_angle=0;
-int offsetX=-42.1;
-int offsetY=-6;
-int offsetZ=3;
+float camera_angle=0;
+float offsetX=-42.1;
+float offsetY=-6;
+float offsetZ=3;
+float package_width=12.573;
+float package_large=12.573;
 float delta=0.1;
 
 
@@ -29,6 +32,40 @@ CameraFrameGrabber *_cameraFrameGrabber;
 
 float X,Y,Z;
 float W=0;//positions of the grip
+
+int   r1, g1, b1;
+int   ra, ga, ba;
+int   rb, gb, bb;
+int   rc, gc, bc;
+int   rd, gd, bd;
+int   re, ge, be;
+int   rf, gf, bf;
+int   rg, gg, bg;
+int   rh, gh, bh;
+int   ri, gi, bi;
+float zr,zg,zb;
+
+struct blur
+{
+    float a=2,b=2,c=2;
+    float d=2,e=4,f=2;
+    float g=2,h=2,i=2;
+    float div=(a+b+c+d+e+f+g+h+i);
+};
+
+struct sobelx
+{
+    float a=-1,b=0,c=1;
+    float d=-2,e=0,f=2;
+    float g=-1,h=0,i=1;
+};
+
+struct sobely
+{
+    float a=-1,b=-2,c=-1;
+    float d=0,e=0,f=0;
+    float g=1,h=2,i=1;
+};
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -186,22 +223,28 @@ void MainWindow::Release()
 
 void MainWindow::rotorright()
 {
-    /* serial->write("M302 S0\r");
-     serial->write("M83 S0\r");
-     serial->write("G1 E-1\r");*/ //For Marlin
-     serial->write("G1 E-1\r");  //For GerCode
-     W=W-delta;
-     qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
+    deltaf=ui->delta->text();
+    delta=deltaf.toFloat();
+    W=W+delta;
+    camera_angle=W;
+    QString s= QString::number(W);
+    ui->PosW->setText(s);
+    s="G1 E"+s+"\r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 }
 void MainWindow::rotorleft()
 {
-     /*serial->write("M302 S0\r");
-     serial->write("M83\r");
-     serial->write("G1 E1\r");*/
-     serial->write("G1 E1\r");  //For GerCode
-     W=W-delta;
-     W=W+delta;
-     qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
+    deltaf=ui->delta->text();
+    delta=deltaf.toFloat();
+    W=W-delta;
+    camera_angle=W;
+    //ui->slider->setTickPosition((int)camera_angle);
+    QString s= QString::number(W);
+    ui->PosW->setText(s);
+    s="G1 E"+s+"\r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 }
 
 void MainWindow::portconnect()
@@ -246,21 +289,50 @@ void MainWindow::zoom(){
 
 void MainWindow::handleFrame(QImage imageObject)
 {
-    int width=460;
-    int height=460;
+    int width=640;
+    int height=480;
+    int r1,g1,b1,a1;
+    struct blur Blur;
+    struct sobelx Sobelx;
+    struct sobely Sobely;
+    int n,m;
+    rectangle *Rect = new rectangle(package_width,package_large,camera_angle,width,height);
+
     QRgb value;
+    QColor colors;
+    QPoint position;
     QTransform matrix(-1,0,0,0,1,0,0,0,1); // m11=-1 : flipping horizontal. I do not know why
     value = qRgb(100, 0, 0); // 0xffbd9527
     imageObject=imageObject.transformed(matrix);
     imageObject=imageObject.copy();
 
+
+
+
     int y,x;
-       for ( y=0;y<height;++y) {
-                 imageObject.setPixel(640/2, 480/2-height/2+y, value);
+    float as;
+    for ( y=0;y<height;++y) {
+
+                 as=(float)y/(float)(height);
+                 imageObject.setPixel(width/2, 480/2-height/2+y, value);
+                 Rect->segmentb(as,&m,&n);
+                 if(ui->BnW->isChecked())
+                     value=qRgb(255,255,255);
+                 imageObject.setPixel(m,n, value);
+                 Rect->segmentd(as,&m,&n);
+                 imageObject.setPixel(m,n, value);
+
 
            }
-   for ( x=0;x<width;++x) {
-                 imageObject.setPixel(640/2-width/2+x, 480/2, value);
+    for ( x=0;x<width;++x) {
+                as=(float)x/(float)(width);
+                imageObject.setPixel(width/2-width/2+x, height/2, value);
+                Rect->segmenta(as,&m,&n);
+                if(ui->BnW->isChecked())
+                    value=qRgb(255,255,255);
+                imageObject.setPixel(m,n, value);
+                Rect->segmentc(as,&m,&n);
+                imageObject.setPixel(m,n, value);
 
            }
 
@@ -278,26 +350,110 @@ void MainWindow::handleFrame(QImage imageObject)
         s="X:"+sx+" Y:"+sy+" Z:"+sz+" W:"+sw;
         p.drawText(imageObject.rect(), Qt::AlignTop,s);
 
+    QImage Image2=imageObject.copy();
 
-/*
-   for (y=0;y<480;++y) // setting to gray
-       for(x=0;x<640;++x)
-       {
-           p.setX(x);
-           p.setY(y);
-           colors=imageObject.pixelColor(p);
-           colors.getRgb(&r,&g,&b,&a);
-           value = qRgb((r+g+b)/3, (r+g+b)/3,(r+g+b)/3);
-           imageObject.setPixel(x,y, value);
+        //Blur? Corregir el uso de la matriz en el calculo
+        if(ui->BLUR->isChecked()){
+          for (y=1;y<(height-1);++y )
+          {
+              for (x=1;x<(width-1);++x)
+              {
+                  /* Get pixel's RGB values */
+                  position.setX(x-1); position.setY(y-1); colors=Image2.pixelColor(position); colors.getRgb(&ra,&ga,&ba,&a1);
+                  position.setX(x); position.setY(y-1); colors=Image2.pixelColor(position); colors.getRgb(&rb,&gb,&bb,&a1);
+                  position.setX(x+1); position.setY(y-1); colors=Image2.pixelColor(position); colors.getRgb(&rc,&gc,&bc,&a1);
+                  position.setX(x-1); position.setY(y); colors=Image2.pixelColor(position); colors.getRgb(&rd,&gd,&bd,&a1);
+                  position.setX(x); position.setY(y); colors=Image2.pixelColor(position); colors.getRgb(&re,&ge,&be,&a1);
+                  position.setX(x+1); position.setY(y); colors=Image2.pixelColor(position); colors.getRgb(&rf,&gf,&bf,&a1);
+                  position.setX(x-1); position.setY(y+1); colors=Image2.pixelColor(position); colors.getRgb(&rg,&gg,&bg,&a1);
+                  position.setX(x); position.setY(y+1); colors=Image2.pixelColor(position); colors.getRgb(&rh,&gh,&bh,&a1);
+                  position.setX(x+1); position.setY(y+1); colors=Image2.pixelColor(position); colors.getRgb(&ri,&gi,&bi,&a1);
 
-       }
-*/
+                  zr=(Blur.a*ra+Blur.b*rb+Blur.c*rc+Blur.d*rd+Blur.e*re+Blur.f*rf+Blur.g*rg+Blur.h*rh+Blur.i*ri)/Blur.div;
+                  zg=(Blur.a*ga+Blur.b*gb+Blur.c*gc+Blur.d*gd+Blur.e*ge+Blur.f*gf+Blur.g*gg+Blur.h*gh+Blur.i*gi)/Blur.div;
+                  zb=(Blur.a*ba+Blur.b*bb+Blur.c*bc+Blur.d*bd+Blur.e*be+Blur.f*bf+Blur.g*bg+Blur.h*bh+Blur.i*bi)/Blur.div;
+                  /* Invert RGB values */
+                  value = qRgb(zr,zg ,zb);
+                  imageObject.setPixel(x,y, value);
+              }
+
+              }
+            }
+
+
+        if(ui->BnW->isChecked()){
+
+           for (y=0;y<480;++y) // setting to gray
+               for(x=0;x<640;++x)
+               {
+                   position.setX(x);
+                   position.setY(y);
+                   colors=imageObject.pixelColor(position);
+                   colors.getRgb(&r1,&g1,&b1,&a1);
+                   value = qRgb((r1+g1+b1)/3, (r1+g1+b1)/3,(r1+g1+b1)/3);
+                   imageObject.setPixel(x,y, value);
+
+               }
+        }
+
+        QImage Image3=imageObject.copy();
+        //Sobel? Corregir el uso de la matriz en el calculo
+        float val;
+        if(ui->SOBEL->isChecked()){
+          for (y=1;y<(480-1);++y )
+          {
+              for (x=1;x<(640-1);++x)
+              {
+                  /* Get pixel's RGB values */
+                  position.setX(x-1); position.setY(y-1); colors=Image3.pixelColor(position); colors.getRgb(&ra,&ga,&ba,&a1);
+                  position.setX(x); position.setY(y-1); colors=Image3.pixelColor(position); colors.getRgb(&rb,&gb,&bb,&a1);
+                  position.setX(x+1); position.setY(y-1); colors=Image3.pixelColor(position); colors.getRgb(&rc,&gc,&bc,&a1);
+                  position.setX(x-1); position.setY(y); colors=Image3.pixelColor(position); colors.getRgb(&rd,&gd,&bd,&a1);
+                  position.setX(x); position.setY(y); colors=Image3.pixelColor(position); colors.getRgb(&re,&ge,&be,&a1);
+                  position.setX(x+1); position.setY(y); colors=Image3.pixelColor(position); colors.getRgb(&rf,&gf,&bf,&a1);
+                  position.setX(x-1); position.setY(y+1); colors=Image3.pixelColor(position); colors.getRgb(&rg,&gg,&bg,&a1);
+                  position.setX(x); position.setY(y+1); colors=Image3.pixelColor(position); colors.getRgb(&rh,&gh,&bh,&a1);
+                  position.setX(x+1); position.setY(y+1); colors=Image3.pixelColor(position); colors.getRgb(&ri,&gi,&bi,&a1);
+                  zr=(Sobely.a*ra+Sobely.b*rb+Sobely.c*rc+
+                      Sobely.d*rd+Sobely.e*re+Sobely.f*rf+
+                      Sobely.g*rg+Sobely.h*rh+Sobely.i*ri);
+                  zg=(Sobelx.a*ra+Sobelx.b*rb+Sobelx.c*rc+
+                      Sobelx.d*rd+Sobelx.e*re+Sobelx.f*rf+
+                      Sobelx.g*rg+Sobelx.h*rh+Sobelx.i*ri);
+                  val=sqrt(zr*zr+zg*zg)/8;
+                  val=(val<60)?255:0;
+                  value = qRgb(val,val ,val);
+                  imageObject.setPixel(x,y, value);
+              }
+
+              }
+            }
 
 
     QPixmap pixmap = QPixmap::fromImage(imageObject);
     ui->pic->setPixmap(pixmap);
     this->update();
 
+}
+
+void MainWindow::BMP_GetPixelRGB(QImage imageObject,int x,int y,int *r1,int *g1,int *b1){
+    QPoint position;
+    int a1;
+    QColor colors;
+    position.setX(x);
+    position.setY(y);
+    colors=imageObject.pixelColor(position);
+    colors.getRgb(r1,g1,b1,&a1);
+}
+
+void MainWindow::BMP_SetPixelRGB(QImage imageObject,int x,int y,int  r1,int g1,int  b1){
+    QPoint position;
+    QRgb value;
+    QColor colors;
+    position.setX(x);
+    position.setY(y);
+    value = qRgb((r1+g1+b1)/3, (r1+g1+b1)/3,(r1+g1+b1)/3);
+    imageObject.setPixel(x,y, value);
 }
 
 
@@ -311,18 +467,24 @@ void MainWindow::command()
 
 void MainWindow::Slider(int a)
 {
-camera_angle=a;
+    camera_angle=(float)a;
+    W=camera_angle;
+    QString s= QString::number(W);
+    ui->PosW->setText(s);
+    s="G1 E"+s+"\r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 }
 
 void MainWindow::SetOrigin()
 {
-X=Y=Z=W=0;
-serial->write("G92 X0 Y0 Z0\r");
-qDebug()<<"Setting origin at: X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
-ui->PosX->setText("0");
-ui->PosY->setText("0");
-ui->PosZ->setText("0");
-ui->PosW->setText("0");
+    X=Y=Z=W=0;
+    serial->write("G92 X0 Y0 Z0\r");
+    qDebug()<<"Setting origin at: X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
+    ui->PosX->setText("0");
+    ui->PosY->setText("0");
+    ui->PosZ->setText("0");
+    ui->PosW->setText("0");
 
 }
 
@@ -330,13 +492,10 @@ void MainWindow::Goto()
 {
     QString s= QString::number(X);
     ui->PosX->setText(s);
-    //s="G1 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
     s="G1 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" \r";
     X=ui->GotoX->text().toFloat();
     Y=ui->GotoY->text().toFloat();
-    //Z=ui->GotoZ->text().toFloat();
     qDebug()<<"Going to "<<s.toStdString().c_str();
-    //s="G1 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+"\r";
     serial->write(s.toStdString().c_str());
 
 
@@ -411,27 +570,40 @@ void MainWindow::Place()
 
 void MainWindow::HomeX()
 {
-
-serial->write("G28 X0\r");
-X=0;
-ui->PosX->setText("0");
-qDebug()<<"Homing X";
+    serial->write("G28 X0\r");
+    X=0;
+    ui->PosX->setText("0");
+    qDebug()<<"Homing X";
 }
 
 void MainWindow::HomeY()
 {
-Y=0;
-serial->write("G28 Y0\r");
-ui->PosY->setText("0");
-qDebug()<<"Homing X";
+    Y=0;
+    serial->write("G28 Y0\r");
+    ui->PosY->setText("0");
+    qDebug()<<"Homing X";
 }
 
 void MainWindow::HomeZ()
 {
-Z=0;
-serial->write("G28 Z0\r");
-ui->PosZ->setText("0");
-qDebug()<<"Homing Z";
-Z=Z+11.2;
-serial->write("G1 Z10\r");
+    Z=0;
+    serial->write("G28 Z0\r");
+    ui->PosZ->setText("0");
+    qDebug()<<"Homing Z";
+    Z=Z+11.2;
+    serial->write("G1 Z10\r");
+}
+
+void MainWindow::on_PLCC28_clicked()
+{
+    offsetZ=4.572;
+    package_width=12.573;
+    package_large=12.573;
+}
+
+void MainWindow::on_TQFP44_clicked()
+{
+    offsetZ=1;
+    package_width=10;
+    package_large=10;
 }

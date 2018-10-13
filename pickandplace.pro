@@ -17,13 +17,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     cameraframegrabber.cpp \
     filters.cpp \
-    least_squares.cpp
+    least_squares.cpp \
+    rectangle.cpp
 
 
 HEADERS  += mainwindow.h \
     cameraframegrabber.h \
     least_squares.h \
-    mainwindow.h
+    mainwindow.h \
+    rectangle.h
 
 FORMS    += mainwindow.ui
 

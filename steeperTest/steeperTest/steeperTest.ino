@@ -309,7 +309,7 @@ void G1(int arg_cnt,char **args)//G0
       while(E0.distancetoGo()!=0){
         E0.run();
         }
-      E0.moveto(yvalue*microstepsG/Factor2);
+      E0.moveto(yvalue*3200/360);
       
       while(E0.distancetoGo()!=0)
         E0.run();
@@ -446,7 +446,7 @@ void Xlimit(){
 }
 
 void Ylimit(){
-  intY=1;
+  //intY=1;
   Serial.println("Limit Y reached");
 
 }

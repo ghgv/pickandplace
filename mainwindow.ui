@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>943</width>
+    <width>1127</width>
     <height>755</height>
    </rect>
   </property>
@@ -95,8 +95,8 @@
    <widget class="QPushButton" name="connect">
     <property name="geometry">
      <rect>
-      <x>820</x>
-      <y>350</y>
+      <x>140</x>
+      <y>660</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -108,8 +108,8 @@
    <widget class="QLineEdit" name="port">
     <property name="geometry">
      <rect>
-      <x>710</x>
-      <y>350</y>
+      <x>30</x>
+      <y>660</y>
       <width>61</width>
       <height>20</height>
      </rect>
@@ -179,7 +179,7 @@
     <widget class="QPushButton" name="rotorleft">
      <property name="geometry">
       <rect>
-       <x>120</x>
+       <x>30</x>
        <y>50</y>
        <width>75</width>
        <height>23</height>
@@ -218,7 +218,7 @@
     <widget class="QPushButton" name="rotorright">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>120</x>
        <y>50</y>
        <width>75</width>
        <height>23</height>
@@ -274,8 +274,11 @@
       <height>22</height>
      </rect>
     </property>
+    <property name="minimum">
+     <number>-90</number>
+    </property>
     <property name="maximum">
-     <number>180</number>
+     <number>90</number>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
@@ -466,8 +469,8 @@
    <widget class="QPushButton" name="Goto">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>670</y>
+      <x>570</x>
+      <y>640</y>
       <width>75</width>
       <height>20</height>
      </rect>
@@ -507,8 +510,8 @@
      <rect>
       <x>10</x>
       <y>0</y>
-      <width>641</width>
-      <height>491</height>
+      <width>640</width>
+      <height>480</height>
      </rect>
     </property>
     <property name="text">
@@ -557,8 +560,8 @@
    <widget class="QLineEdit" name="delta">
     <property name="geometry">
      <rect>
-      <x>820</x>
-      <y>410</y>
+      <x>810</x>
+      <y>350</y>
       <width>61</width>
       <height>20</height>
      </rect>
@@ -570,8 +573,8 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>779</x>
-      <y>410</y>
+      <x>769</x>
+      <y>350</y>
       <width>31</width>
       <height>20</height>
      </rect>
@@ -586,8 +589,99 @@
       <x>20</x>
       <y>500</y>
       <width>321</width>
-      <height>181</height>
+      <height>141</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="BnW">
+    <property name="geometry">
+     <rect>
+      <x>850</x>
+      <y>20</y>
+      <width>72</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>B&amp;W</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="BLUR">
+    <property name="geometry">
+     <rect>
+      <x>850</x>
+      <y>40</y>
+      <width>70</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Blur</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_4">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>380</y>
+      <width>401</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Package</string>
+    </property>
+    <widget class="QRadioButton" name="PLCC28">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>85</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>28-Pin PLCC</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="TQFP44">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>50</y>
+       <width>85</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>44-Pin TQFP</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="R603">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>20</y>
+       <width>85</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>603</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QCheckBox" name="SOBEL">
+    <property name="geometry">
+     <rect>
+      <x>850</x>
+      <y>60</y>
+      <width>70</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Sobel</string>
     </property>
    </widget>
    <zorder>scroll</zorder>
@@ -628,13 +722,17 @@
    <zorder>delta</zorder>
    <zorder>label_5</zorder>
    <zorder>Messages</zorder>
+   <zorder>BnW</zorder>
+   <zorder>BLUR</zorder>
+   <zorder>groupBox_4</zorder>
+   <zorder>SOBEL</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>943</width>
+     <width>1127</width>
      <height>21</height>
     </rect>
    </property>
