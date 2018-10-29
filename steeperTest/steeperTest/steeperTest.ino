@@ -53,6 +53,7 @@ motor Z(Z_ENABLE_PIN,Z_STEP_PIN,Z_DIR_PIN,&intZ,1,3);
 #define LCD_PINS_RS     16
 #define LCD_PINS_ENABLE 17
 #define LCD_PINS_D4     23
+#define LIGHTS          10
 
 #define ST7920_CLK_PIN  LCD_PINS_D4
 #define ST7920_DAT_PIN  LCD_PINS_ENABLE
@@ -87,8 +88,11 @@ void setup() {
   cmdAdd("G92",G92);
   cmdAdd("M112",M112);
   cmdAdd("M114",M114);
+  cmdAdd("Lights",LIGHT);
   cmdAdd("M999",M999);
+  
   pinMode(PUMP, OUTPUT);           
+  pinMode(LIGHTS, OUTPUT);           
   digitalWrite(PUMP, HIGH);       
   
 
@@ -439,6 +443,18 @@ void M999(int arg_cnt,char **args)//Restart
   Serial.println("Restart");
 }
 
+void LIGHT(int arg_cnt,char **args)//Ligths
+{
+   if(strcmp(args[1],"ON")==0){
+        digitalWrite(LIGHTS, HIGH);
+        Serial.println("ok");
+   }
+    
+   if(strcmp(args[1],"OFF")==0){
+        digitalWrite(LIGHTS, LOW);
+        Serial.println("ok");
+   }
+}
 
 void Xlimit(){
   intX=1;

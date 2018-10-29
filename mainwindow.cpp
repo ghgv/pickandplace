@@ -9,6 +9,7 @@
 #include <QVBoxLayout>
 #include <QTimer>
 #include <string.h>
+#include <QtMath>
 #include "cameraframegrabber.h"
 #include "rectangle.h"
 
@@ -31,6 +32,8 @@ QCamera *_camera;
 CameraFrameGrabber *_cameraFrameGrabber;
 
 float X,Y,Z;
+float X1,Y1,X2,Y2,X3,Y3;
+float catOp=0,hypo=1,desfase=0;
 float W=0;//positions of the grip
 
 int   r1, g1, b1;
@@ -239,7 +242,6 @@ void MainWindow::rotorleft()
     delta=deltaf.toFloat();
     W=W-delta;
     camera_angle=W;
-    //ui->slider->setTickPosition((int)camera_angle);
     QString s= QString::number(W);
     ui->PosW->setText(s);
     s="G1 E"+s+"\r";
@@ -373,7 +375,7 @@ void MainWindow::handleFrame(QImage imageObject)
                   zg=(Blur.a*ga+Blur.b*gb+Blur.c*gc+Blur.d*gd+Blur.e*ge+Blur.f*gf+Blur.g*gg+Blur.h*gh+Blur.i*gi)/Blur.div;
                   zb=(Blur.a*ba+Blur.b*bb+Blur.c*bc+Blur.d*bd+Blur.e*be+Blur.f*bf+Blur.g*bg+Blur.h*bh+Blur.i*bi)/Blur.div;
                   /* Invert RGB values */
-                  value = qRgb(zr,zg ,zb);
+                  value = qRgb((int)zr,(int)zg ,(int)zb);
                   imageObject.setPixel(x,y, value);
               }
 
@@ -397,7 +399,7 @@ void MainWindow::handleFrame(QImage imageObject)
         }
 
         QImage Image3=imageObject.copy();
-        //Sobel? Corregir el uso de la matriz en el calculo
+
         float val;
         if(ui->SOBEL->isChecked()){
           for (y=1;y<(480-1);++y )
@@ -606,4 +608,50 @@ void MainWindow::on_TQFP44_clicked()
     offsetZ=1;
     package_width=10;
     package_large=10;
+}
+
+void MainWindow::on_A1_clicked()
+{
+    X1=X;
+    Y1=Y;
+}
+
+void MainWindow::on_B_clicked()
+{
+    X2=X;
+    Y2=Y;
+    hypo=sqrt((X2-X1)*(X2-X1)+(Y2-Y1)*(Y2-Y1));
+
+}
+
+void MainWindow::on_C_clicked()
+{
+    X3=X;
+    Y3=Y;
+
+    catOp=sqrt((X3-X2)*(X3-X2)+(Y3-Y2)*(Y3-Y2));
+    desfase=qAsin(catOp/hypo);
+    //QString fase();
+    ui->FASE->setText(std::to_string(desfase).c_str());
+}
+
+void MainWindow::on_Leds_ON_clicked()
+{
+    serial->write("Lights ON\r");
+
+}
+
+void MainWindow::on_Leds_OFF_clicked()
+{
+    serial->write("Lights OFF\r");
+}
+
+void MainWindow::on_Motors17_clicked()
+{
+    serial->write("M17\r");
+}
+
+void MainWindow::on_Motors18_clicked()
+{
+    serial->write("M18\r");
 }

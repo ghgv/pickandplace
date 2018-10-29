@@ -53,6 +53,13 @@ private slots:
 
     void on_PLCC28_clicked();
     void on_TQFP44_clicked();
+    void on_A1_clicked();
+    void on_B_clicked();
+    void on_C_clicked();
+    void on_Leds_ON_clicked();
+    void on_Leds_OFF_clicked();
+    void on_Motors17_clicked();
+    void on_Motors18_clicked();
 };
 
 #endif // MAINWINDOW_H
