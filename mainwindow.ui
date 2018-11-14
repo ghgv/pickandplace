@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1127</width>
-    <height>755</height>
+    <width>1232</width>
+    <height>857</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -96,7 +96,7 @@
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>660</y>
+      <y>760</y>
       <width>51</width>
       <height>23</height>
      </rect>
@@ -109,7 +109,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>660</y>
+      <y>760</y>
       <width>61</width>
       <height>20</height>
      </rect>
@@ -168,7 +168,7 @@
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>560</y>
+      <y>660</y>
       <width>231</width>
       <height>91</height>
      </rect>
@@ -233,7 +233,7 @@
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>480</y>
+      <y>580</y>
       <width>231</width>
       <height>80</height>
      </rect>
@@ -269,7 +269,7 @@
     <property name="geometry">
      <rect>
       <x>720</x>
-      <y>660</y>
+      <y>760</y>
       <width>160</width>
       <height>22</height>
      </rect>
@@ -288,7 +288,7 @@
     <property name="geometry">
      <rect>
       <x>640</x>
-      <y>660</y>
+      <y>760</y>
       <width>81</width>
       <height>20</height>
      </rect>
@@ -301,7 +301,7 @@
     <property name="geometry">
      <rect>
       <x>450</x>
-      <y>510</y>
+      <y>610</y>
       <width>20</width>
       <height>20</height>
      </rect>
@@ -314,7 +314,7 @@
     <property name="geometry">
      <rect>
       <x>450</x>
-      <y>540</y>
+      <y>640</y>
       <width>21</width>
       <height>16</height>
      </rect>
@@ -327,7 +327,7 @@
     <property name="geometry">
      <rect>
       <x>450</x>
-      <y>570</y>
+      <y>670</y>
       <width>21</width>
       <height>10</height>
      </rect>
@@ -340,7 +340,7 @@
     <property name="geometry">
      <rect>
       <x>540</x>
-      <y>510</y>
+      <y>610</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -353,7 +353,7 @@
     <property name="geometry">
      <rect>
       <x>470</x>
-      <y>510</y>
+      <y>610</y>
       <width>47</width>
       <height>20</height>
      </rect>
@@ -366,7 +366,7 @@
     <property name="geometry">
      <rect>
       <x>470</x>
-      <y>540</y>
+      <y>640</y>
       <width>47</width>
       <height>13</height>
      </rect>
@@ -379,7 +379,7 @@
     <property name="geometry">
      <rect>
       <x>470</x>
-      <y>570</y>
+      <y>670</y>
       <width>47</width>
       <height>13</height>
      </rect>
@@ -392,7 +392,7 @@
     <property name="geometry">
      <rect>
       <x>470</x>
-      <y>590</y>
+      <y>690</y>
       <width>47</width>
       <height>20</height>
      </rect>
@@ -405,7 +405,7 @@
     <property name="geometry">
      <rect>
       <x>450</x>
-      <y>590</y>
+      <y>690</y>
       <width>20</width>
       <height>20</height>
      </rect>
@@ -418,7 +418,7 @@
     <property name="geometry">
      <rect>
       <x>410</x>
-      <y>640</y>
+      <y>740</y>
       <width>31</width>
       <height>20</height>
      </rect>
@@ -431,7 +431,7 @@
     <property name="geometry">
      <rect>
       <x>450</x>
-      <y>640</y>
+      <y>740</y>
       <width>31</width>
       <height>20</height>
      </rect>
@@ -444,7 +444,7 @@
     <property name="geometry">
      <rect>
       <x>490</x>
-      <y>640</y>
+      <y>740</y>
       <width>31</width>
       <height>20</height>
      </rect>
@@ -457,7 +457,7 @@
     <property name="geometry">
      <rect>
       <x>530</x>
-      <y>640</y>
+      <y>740</y>
       <width>31</width>
       <height>20</height>
      </rect>
@@ -470,7 +470,7 @@
     <property name="geometry">
      <rect>
       <x>570</x>
-      <y>640</y>
+      <y>740</y>
       <width>75</width>
       <height>20</height>
      </rect>
@@ -483,7 +483,7 @@
     <property name="geometry">
      <rect>
       <x>540</x>
-      <y>540</y>
+      <y>640</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -496,7 +496,7 @@
     <property name="geometry">
      <rect>
       <x>540</x>
-      <y>570</y>
+      <y>670</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -522,7 +522,7 @@
     <property name="geometry">
      <rect>
       <x>360</x>
-      <y>510</y>
+      <y>610</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -535,7 +535,7 @@
     <property name="geometry">
      <rect>
       <x>360</x>
-      <y>540</y>
+      <y>640</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -548,7 +548,7 @@
     <property name="geometry">
      <rect>
       <x>360</x>
-      <y>570</y>
+      <y>670</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -587,7 +587,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>500</y>
+      <y>600</y>
       <width>321</width>
       <height>141</height>
      </rect>
@@ -788,6 +788,227 @@
      <string>Motors Off</string>
     </property>
    </widget>
+   <widget class="QComboBox" name="PortcomboBox">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>20</y>
+      <width>65</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>920</x>
+      <y>20</y>
+      <width>81</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Bottom Camera:</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="CameraPort">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>50</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Closed</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bCapture">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>80</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Capture</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="BnW_2">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>120</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Bottom B&amp;W</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="BLUR_2">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>140</y>
+      <width>91</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Bottom Blur</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="HL">
+    <property name="geometry">
+     <rect>
+      <x>1000</x>
+      <y>479</y>
+      <width>41</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>255</number>
+    </property>
+    <property name="sliderPosition">
+     <number>46</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <property name="tickPosition">
+     <enum>QSlider::TicksAbove</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="SL">
+    <property name="geometry">
+     <rect>
+      <x>1070</x>
+      <y>480</y>
+      <width>16</width>
+      <height>160</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>255</number>
+    </property>
+    <property name="sliderPosition">
+     <number>61</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="VL">
+    <property name="geometry">
+     <rect>
+      <x>1120</x>
+      <y>480</y>
+      <width>30</width>
+      <height>160</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>255</number>
+    </property>
+    <property name="sliderPosition">
+     <number>100</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="VU">
+    <property name="geometry">
+     <rect>
+      <x>1120</x>
+      <y>650</y>
+      <width>30</width>
+      <height>160</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>255</number>
+    </property>
+    <property name="sliderPosition">
+     <number>100</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="HU">
+    <property name="geometry">
+     <rect>
+      <x>1000</x>
+      <y>649</y>
+      <width>41</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>255</number>
+    </property>
+    <property name="sliderPosition">
+     <number>46</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <property name="tickPosition">
+     <enum>QSlider::TicksAbove</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="SU">
+    <property name="geometry">
+     <rect>
+      <x>1070</x>
+      <y>650</y>
+      <width>16</width>
+      <height>160</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>255</number>
+    </property>
+    <property name="sliderPosition">
+     <number>61</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButton">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>500</y>
+      <width>85</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Top Camera</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButton_2">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>500</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Bottom Camera</string>
+    </property>
+   </widget>
    <zorder>scroll</zorder>
    <zorder>Yplus</zorder>
    <zorder>Xright</zorder>
@@ -838,13 +1059,27 @@
    <zorder>Leds_OFF</zorder>
    <zorder>Motors17</zorder>
    <zorder>Motors18</zorder>
+   <zorder>PortcomboBox</zorder>
+   <zorder>label_6</zorder>
+   <zorder>CameraPort</zorder>
+   <zorder>bCapture</zorder>
+   <zorder>BnW_2</zorder>
+   <zorder>BLUR_2</zorder>
+   <zorder>HL</zorder>
+   <zorder>SL</zorder>
+   <zorder>VL</zorder>
+   <zorder>VU</zorder>
+   <zorder>HU</zorder>
+   <zorder>SU</zorder>
+   <zorder>radioButton</zorder>
+   <zorder>radioButton_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1127</width>
+     <width>1232</width>
      <height>21</height>
     </rect>
    </property>

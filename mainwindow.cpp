@@ -6,15 +6,25 @@
 #include <qtDebug>
 #include <QCameraViewfinder>
 #include <QCameraImageCapture>
+#include <QMessageBox>
 #include <QVBoxLayout>
 #include <QTimer>
 #include <string.h>
 #include <QtMath>
+#include <vector>
+#include <QSerialPortInfo>
+#include <windows.h>
 #include "cameraframegrabber.h"
 #include "rectangle.h"
+#include "serial.h"
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
+using namespace std;
 
 
-QSerialPort *serial;
+QSerialPort *serial,*bCamera;
+QVSerialPort *Kam;
 QString str,deltaf;
 QCamera *mCamera;
 QCameraViewfinder *mCameraViewfinder;
@@ -26,7 +36,11 @@ float offsetZ=3;
 float package_width=12.573;
 float package_large=12.573;
 float delta=0.1;
-
+std::vector<unsigned char> buffer (409600);
+QByteArray buffy;
+bool is_header=false;
+bool topCamera=true;
+bool bottomCamera=false;
 
 QCamera *_camera;
 CameraFrameGrabber *_cameraFrameGrabber;
@@ -76,11 +90,33 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //cv::Mat srcImage = cv::imread("C://Users//German//Documents//programacion//serialarduino//1.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+    cv::Mat srcImage = cv::imread("C://Users//German//Documents//programacion//serialarduino//1.jpg", 1);
+    //Then define your mask image
+    cv::Mat mask = cv::Mat::zeros(srcImage.size(), srcImage.type());
+    //Define your destination image
+    cv::Mat dstImage = cv::Mat::zeros(srcImage.size(), srcImage.type());
+    //I assume you want to draw the circle at the center of your image, with a radius of 50
+    cv::circle(mask, cv::Point(srcImage.rows/2, srcImage.cols/2), 100, cv::Scalar(255, 255, 255), -1, 8, 0);
+    //Now you can copy your source image to destination image with masking
+    srcImage.copyTo(dstImage, mask);
+
+    //cv::Mat image = cv::imread("C://Users//German//Documents//programacion//serialarduino//1.jpg", 1);
+    cvtColor(dstImage, dstImage, CV_BGR2RGB);
+    ui->pic->setPixmap(QPixmap::fromImage(QImage(dstImage.data, dstImage.cols, dstImage.rows, dstImage.step, QImage::Format_RGB888)));
+
     ui->PosX->setText("0");
     ui->PosY->setText("0");
     ui->PosZ->setText("0");
     ui->PosW->setText("0");
-
+    QList<QSerialPortInfo> com_ports = QSerialPortInfo::availablePorts();
+    QSerialPortInfo port;
+    foreach(port, com_ports)
+    {
+        ui->PortcomboBox->addItem(port.portName());
+    }
+    bCamera= new QSerialPort(this);
+    Kam=new QVSerialPort(this);
     serial= new QSerialPort(this);
     str=ui->port->text();
     deltaf=ui->delta->text();
@@ -108,6 +144,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->rotorright, SIGNAL(pressed()),this, SLOT(rotorright( )));
     connect(ui->rotorleft, SIGNAL(pressed()),this, SLOT(rotorleft( )));
     connect(serial,SIGNAL(readyRead()),this,SLOT(serialreceived()));
+    connect(bCamera,SIGNAL(readyRead()),this,SLOT(ArduCAMreceived()));
     connect(ui->zoom,SIGNAL(pressed()),this,SLOT(zoom()));
     connect(ui->sendButton, SIGNAL(pressed()),this, SLOT(command( )));
     connect(ui->slider, SIGNAL(valueChanged(int)), this, SLOT(Slider(int)));
@@ -277,6 +314,130 @@ int MainWindow::serialreceived()
 
  }
 
+int MainWindow::ArduCAMreceived()
+{
+    int n=bCamera->bytesAvailable();
+    QByteArray data = bCamera->read(n);
+    buffy.append(data);
+
+    if (buffy.size() >= 2)
+     {
+         if (((unsigned char)buffy.data()[0] == 0xFF) && ((unsigned char)buffy.data()[1] == 0xD8) && (is_header == false))
+         {
+             is_header = true;
+                     ui->Messages->appendPlainText("JPEG header found\n");
+             //break;
+         }
+         else if (((unsigned char)buffy.data()[buffy.size() - 2] == 0xFF) && ((unsigned char)buffy.data()[buffy.size() - 1] == 0xD9) && (is_header == true))
+         {
+             //Display the image data in the picture box
+             //DispPictureBox.Image = BytesToBitmap(buffer);
+             QImage foto;
+             foto.loadFromData((unsigned char *)buffy.constData(),buffy.size(),"JPG");
+             ui->Messages->appendPlainText("tail");
+             ui->pic->setPixmap(QPixmap::fromImage(foto));
+
+
+             ///Pipeline
+             ///
+             QImage temp = foto.copy();
+
+             cv::Mat res(temp.height(),temp.width(),CV_8UC4,(uchar*)temp.bits(),temp.bytesPerLine());
+             cvtColor(res, res,CV_RGB2BGR);
+             cvtColor(res, res,CV_BGR2RGB);
+             //cv::Mat srcImage = cv::imread("C://Users//German//Documents//programacion//serialarduino//1.jpg", 1);
+             //Then define your mask image
+             cv::Mat mask = cv::Mat::zeros(res.size(), res.type());
+             cv::Mat boxy = cv::Mat::zeros(res.size(), res.type());
+             cv::Mat dstImage = cv::Mat::zeros(res.size(), res.type());
+             cv::circle(mask, cv::Point(640/2, 480/2), 200, cv::Scalar(255, 255, 255), -1, 8, 0);
+             //Now you can copy your source image to destination image with masking
+             res.copyTo(dstImage, mask);
+             cv::imwrite( "C://Users//German//Documents//programacion//serialarduino//Orig.jpg",dstImage );
+             cvtColor(dstImage,dstImage, CV_BGR2HSV_FULL);//CV_BGR2HSV
+             //cvtColor(dstImage,dstImage, CV_BGR2HSV);//CV_BGR2HSV
+
+             cv::Mat imgThreshold = cv::Mat::zeros(res.size(), res.type());
+             cv::Mat img2 = cv::Mat::zeros(res.size(), res.type());
+             //cv::Mat imgThreshold= cv::imread("C://Users//German//Documents//programacion//serialarduino//2.jpg", 1);
+             //cv::inRange(dstImage, cv::Scalar(60-15,61, 100),cv::Scalar(60+15, 100,255), imgThreshold); //GOOD
+             cv::inRange(dstImage, cv::Scalar(97,4, 0),cv::Scalar(185, 255,255), imgThreshold); //GOOD
+             unsigned char h,s,v;
+             unsigned char  hh,ss,vv;
+             h=ui->HL->tickPosition();
+             s=ui->SL->tickPosition();
+             v=ui->HL->tickPosition();
+             hh=ui->HU->tickPosition();
+             ss=ui->SU->tickPosition();
+             vv=ui->HU->tickPosition();
+             ui->Messages->appendPlainText("hh: ");
+             ui->Messages->appendPlainText(QString::number(hh));
+             //cv::inRange(dstImage, cv::Scalar(h,s,v),cv::Scalar(hh, ss,vv), imgThreshold);
+             cv::imwrite( "C://Users//German//Documents//programacion//serialarduino//Threshold.jpg",imgThreshold );
+             cv::imwrite( "C://Users//German//Documents//programacion//serialarduino//3.jpg",dstImage );
+             res.copyTo(dstImage, imgThreshold);
+
+             std::vector<cv::Point> points;
+             cv::Mat_<uchar>::iterator it = imgThreshold.begin<uchar>();
+             cv::Mat_<uchar>::iterator end = imgThreshold.end<uchar>();
+             for (; it != end; ++it)
+               if (*it)
+                 points.push_back(it.pos());
+             cv::RotatedRect box = cv::minAreaRect(cv::Mat(points));
+
+             double angle = box.angle;
+             cv::Point2f center= box.center;
+             if (angle < -45.){
+               angle += 90.;
+               ui->Messages->appendPlainText("Angle: ");
+               ui->Messages->appendPlainText(QString::number(angle));
+               qDebug()<<"Angle"<<angle;
+               ui->Messages->appendPlainText("Center x: ");
+               ui->Messages->appendPlainText(QString::number(center.x));
+               ui->Messages->appendPlainText("Center y: ");
+               ui->Messages->appendPlainText(QString::number(center.y));
+               qDebug()<<"Center X: "<<center.x;
+               qDebug()<<"Center Y: "<<center.y;
+             }
+             else{
+                 ui->Messages->appendPlainText("Angle: ");
+                 ui->Messages->appendPlainText(QString::number(angle));
+                 qDebug()<<"Angle"<<angle;
+                 ui->Messages->appendPlainText("Center x: ");
+                 ui->Messages->appendPlainText(QString::number(center.x));
+                 ui->Messages->appendPlainText("Center y: ");
+                 ui->Messages->appendPlainText(QString::number(center.y));
+                 qDebug()<<"Center X: "<<center.x;
+                 qDebug()<<"Center Y: "<<center.y;
+             }
+
+             cv::Point2f vertices[4];
+             box.points(vertices);
+             for(int i = 0; i < 4; ++i){
+                 cv::line(boxy, vertices[i], vertices[(i + 1) % 4], cv::Scalar(255, 0, 0), 1, CV_AA);
+                 cv::line(dstImage, vertices[i], vertices[(i + 1) % 4], cv::Scalar(255, 255, 0), 3, CV_AA);
+                 }
+             cv::imwrite( "C://Users//German//Documents//programacion//serialarduino//boxy.jpg",boxy );
+
+             cvtColor(dstImage,dstImage, CV_HSV2BGR_FULL);
+             //cvtColor(dstImage, dstImage, CV_BGR2RGB);
+             if(bottomCamera)
+             ui->pic->setPixmap(QPixmap::fromImage(QImage(dstImage.data, dstImage.cols, dstImage.rows, dstImage.step, QImage::Format_RGB888)));
+
+
+             ///
+             is_header = false;
+             buffy.resize(0);
+         }
+         else if (is_header == false)
+         {
+             ui->Messages->appendPlainText(data);
+             buffy.resize(0);
+         }
+     }
+ }
+
+
 void MainWindow::zoom(){
     if(mCameraViewfinder->width() != 1600)
     {
@@ -433,7 +594,8 @@ void MainWindow::handleFrame(QImage imageObject)
 
 
     QPixmap pixmap = QPixmap::fromImage(imageObject);
-    ui->pic->setPixmap(pixmap);
+    if(topCamera)
+        ui->pic->setPixmap(pixmap);
     this->update();
 
 }
@@ -654,4 +816,100 @@ void MainWindow::on_Motors17_clicked()
 void MainWindow::on_Motors18_clicked()
 {
     serial->write("M18\r");
+}
+
+void MainWindow::on_CameraPort_clicked()
+{
+    if(bCamera->isOpen()){
+        bCamera->close();
+        ui->CameraPort->setText("Closed");
+        ui->Messages->appendPlainText("Camera port closed\n");
+    }
+    else
+    {
+        bCamera->setPortName(ui->PortcomboBox->currentText());
+        bCamera->setBaudRate(921600);
+        bCamera->setDataBits(QSerialPort::Data8);
+        bCamera->setParity(QSerialPort::NoParity);
+        bCamera->setStopBits(QSerialPort::OneStop);
+        bCamera->setFlowControl(QSerialPort::FlowControl());
+        //bCamera->setReadBufferSize(4096);
+        bCamera->dataTerminalReadyChanged(false);
+
+        DCB dcbSerialParams = {0};
+        dcbSerialParams.EofChar=0x1A;
+        dcbSerialParams.ErrorChar=0x00;
+        dcbSerialParams.EvtChar=0x00;
+        dcbSerialParams.XonChar=0x11;
+        dcbSerialParams.XoffChar=0x13;
+        dcbSerialParams.fRtsControl=RTS_CONTROL_DISABLE;//RTS_CONTROL_HANDSHAKE;//RTS_CONTROL_DISABLE;
+        //Setting the DTR to Control_Enable ensures that the Arduino is properly
+        //reset upon establishing a connection
+        dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;
+        dcbSerialParams.XonLim=4096;
+        dcbSerialParams.XoffLim=4096;
+        //SetupComm(bCamera->handle(), 2*4096, 2048);
+
+        COMMTIMEOUTS timeouts;
+
+           timeouts.ReadIntervalTimeout = -1;
+           timeouts.ReadTotalTimeoutMultiplier = -1;
+           timeouts.ReadTotalTimeoutConstant = 500;
+           timeouts.WriteTotalTimeoutMultiplier = 0;
+           timeouts.WriteTotalTimeoutConstant = 500;
+           /*if (!SetCommTimeouts(bCamera->handle(), &timeouts))
+           {
+               qDebug()<<" error setcommtimeout";
+           }*/
+
+
+        try
+        {
+            bCamera->open(QIODevice::ReadWrite);
+            COMMTIMEOUTS timeouts;
+
+               timeouts.ReadIntervalTimeout = -1;
+               timeouts.ReadTotalTimeoutMultiplier = -1;
+               timeouts.ReadTotalTimeoutConstant = 500;
+               timeouts.WriteTotalTimeoutMultiplier = 0;
+               timeouts.WriteTotalTimeoutConstant = 500;
+               SetupComm(bCamera->handle(), 4096, 2048);
+               if (!SetCommTimeouts(bCamera->handle(), &timeouts)){
+                   qDebug()<<" error setcommtimeout";
+               }
+
+            ui->CameraPort->setText("Open");
+            ui->Messages->appendPlainText("Camera port opened\n");
+        } catch (std::exception & e) {
+            QMessageBox Msgbox;
+                Msgbox.setText("Could not open the port");
+                Msgbox.exec();
+        }{}
+        bCamera->dataTerminalReadyChanged(true);
+
+
+    }
+    ui->bCapture->setEnabled(bCamera->isOpen());
+}
+
+void MainWindow::on_bCapture_clicked()
+{
+    char *tx_data = new char[2];
+    //tx_data[0] = (char)0x02;//Change to 1024x768
+    tx_data[0] = (char)0x01;//Change to 640x480
+    tx_data[1] = (char)0x10;//Shot a picture
+    if(bCamera->isOpen())
+         bCamera->write(tx_data, 2);
+}
+
+void MainWindow::on_radioButton_clicked()
+{
+    topCamera=true;
+    bottomCamera=false;
+}
+
+void MainWindow::on_radioButton_2_clicked()
+{
+    topCamera=false;
+    bottomCamera=true;
 }

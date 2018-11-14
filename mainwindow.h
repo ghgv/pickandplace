@@ -37,6 +37,7 @@ private slots:
     void rotorleft();
     void zoom();
     int serialreceived();
+    int ArduCAMreceived();
     void command();
     void handleFrame(QImage);
     void Slider(int);
@@ -60,6 +61,10 @@ private slots:
     void on_Leds_OFF_clicked();
     void on_Motors17_clicked();
     void on_Motors18_clicked();
+    void on_CameraPort_clicked();
+    void on_bCapture_clicked();
+    void on_radioButton_clicked();
+    void on_radioButton_2_clicked();
 };
 
 #endif // MAINWINDOW_H
