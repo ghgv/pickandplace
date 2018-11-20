@@ -986,7 +986,7 @@
    <widget class="QRadioButton" name="radioButton">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>140</x>
       <y>500</y>
       <width>85</width>
       <height>20</height>
@@ -995,11 +995,14 @@
     <property name="text">
      <string>Top Camera</string>
     </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QRadioButton" name="radioButton_2">
     <property name="geometry">
      <rect>
-      <x>300</x>
+      <x>250</x>
       <y>500</y>
       <width>111</width>
       <height>20</height>

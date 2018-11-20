@@ -65,6 +65,8 @@ private slots:
     void on_bCapture_clicked();
     void on_radioButton_clicked();
     void on_radioButton_2_clicked();
+    void on_TopCameraButton_clicked();
+    void on_BottomCameraButton_clicked();
 };
 
 #endif // MAINWINDOW_H

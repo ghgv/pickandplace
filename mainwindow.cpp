@@ -656,9 +656,10 @@ void MainWindow::Goto()
 {
     QString s= QString::number(X);
     ui->PosX->setText(s);
-    s="G1 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" \r";
+    s="G1 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+" \r";
     X=ui->GotoX->text().toFloat();
     Y=ui->GotoY->text().toFloat();
+    Z=ui->GotoZ->text().toFloat();
     qDebug()<<"Going to "<<s.toStdString().c_str();
     serial->write(s.toStdString().c_str());
 
@@ -902,14 +903,26 @@ void MainWindow::on_bCapture_clicked()
          bCamera->write(tx_data, 2);
 }
 
+
+
+
 void MainWindow::on_radioButton_clicked()
 {
-    topCamera=true;
     bottomCamera=false;
+    topCamera=true;
 }
 
 void MainWindow::on_radioButton_2_clicked()
 {
-    topCamera=false;
     bottomCamera=true;
+    topCamera=false;
+}
+
+void MainWindow::on_TopCameraButton_clicked()
+{
+
+}
+void MainWindow::on_BottomCameraButton_clicked()
+{
+
 }
