@@ -36,10 +36,10 @@ int motor::run(){
   {
     digitalWrite(this->step_pin, HIGH);
     //delay(1); 
-    delayMicroseconds(50);         
+    delayMicroseconds(150);         
     digitalWrite(this->step_pin, LOW); 
     //delay(1);
-    delayMicroseconds(50);
+    delayMicroseconds(150);
 
  
     

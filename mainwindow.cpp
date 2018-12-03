@@ -33,6 +33,11 @@ float camera_angle=0;
 float offsetX=-42.1;
 float offsetY=-6;
 float offsetZ=3;
+
+float offsetX_Right=-46.4;
+float offsetY_Right=8.6;
+float offsetZ_Right=4.8;
+
 float package_width=12.573;
 float package_large=12.573;
 float delta=0.1;
@@ -925,4 +930,86 @@ void MainWindow::on_TopCameraButton_clicked()
 void MainWindow::on_BottomCameraButton_clicked()
 {
 
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    serial->write("M32\r"); //Pump Small On
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    serial->write("M42\r"); //Laser Small Off
+}
+
+void MainWindow::on_Pick_603_clicked()
+{
+    QString s;
+    float x,y,z;
+    x=offsetX_Right+X;
+    y=offsetY_Right+Y;
+    z=-0.1;//R 603 height 0.45 mm
+    QString m = QString::number(x);
+    QString n = QString::number(y);
+    QString p=  QString::number(z);
+    s="G1 X"+m+" Y"+n+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Going to pick at:"<<s.toStdString().c_str();
+    s="G1 Z"+p+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
+    serial->write("M4\r");//Pump On
+    Sleep(1000);
+    x=x-offsetX_Right;
+    y=y-offsetY_Right;
+    z=Z;
+    m = QString::number(x);
+    n = QString::number(y);
+    p = QString::number(z);
+    s="G1 Z"+p+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Going up.."<<s.toStdString().c_str();
+
+    s="G1 X"+m+" Y"+n+" \r";
+    qDebug()<<"Returning "<<s.toStdString().c_str();
+    serial->write(s.toStdString().c_str());
+
+}
+
+void MainWindow::on_Place_603_clicked()
+{
+    QString s;
+    float x,y,z;
+    x=offsetX_Right+X;
+    y=offsetY_Right+Y;
+    z=-0.1;
+    QString m = QString::number(x);
+    QString n = QString::number(y);
+    QString p=  QString::number(z);
+    s="G1 X"+m+" Y"+n+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Going to pick at:"<<s.toStdString().c_str();
+    s="G1 Z"+p+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
+    serial->write("M3\r");//Pump Off
+    Sleep(2000);
+    x=x-offsetX_Right;
+    y=y-offsetY_Right;
+    z=Z;
+    m = QString::number(x);
+    n = QString::number(y);
+    p = QString::number(z);
+    s="G1 Z"+p+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Going up.."<<s.toStdString().c_str();
+
+    s="G1 X"+m+" Y"+n+" \r";
+    qDebug()<<"Returning "<<s.toStdString().c_str();
+    serial->write(s.toStdString().c_str());
+}
+
+void MainWindow::on_Release_clicked()
+{
+    serial->write("M4\r"); //Pump Small On
 }

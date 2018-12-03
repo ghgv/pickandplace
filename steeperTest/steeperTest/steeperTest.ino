@@ -34,7 +34,8 @@
 #define Y_MAX_PIN          19
 const byte BUTTON =3;
 
-#define PUMP               9  //The pump
+#define PUMP_LARGE               9  //The pump
+#define PUMP_SMALL               8  //The pump
 int a;
 volatile int intE;
 volatile byte intX=0,intY,intZ;
@@ -81,6 +82,8 @@ void setup() {
   cmdAdd("M18", M18);
   cmdAdd("M3", M3);
   cmdAdd("M4", M4);
+  cmdAdd("M32", M32);
+  cmdAdd("M42", M42);
   cmdAdd("M6",M6);
   cmdAdd("G0",G0);
   cmdAdd("G1",G1);
@@ -89,11 +92,13 @@ void setup() {
   cmdAdd("M112",M112);
   cmdAdd("M114",M114);
   cmdAdd("Lights",LIGHT);
-  cmdAdd("M999",M999);
+  cmdAdd("M999",M999);//Restart
   
-  pinMode(PUMP, OUTPUT);           
+  pinMode(PUMP_LARGE, OUTPUT);           
+  pinMode(PUMP_SMALL, OUTPUT);           
   pinMode(LIGHTS, OUTPUT);           
-  digitalWrite(PUMP, HIGH);       
+  digitalWrite(PUMP_LARGE, HIGH);  
+  digitalWrite(PUMP_SMALL, HIGH);       
   
 
   // flip screen, if required
@@ -211,6 +216,7 @@ if(strcmp(args[1],"Z")==0)
         Z.run();
         }
       Z.moveto((long)(yvalue*microstepsG/Factor2));
+     
       
       while(Z.distancetoGo()!=0)
         Z.run();
@@ -274,7 +280,7 @@ void G1(int arg_cnt,char **args)//G0
       while(Z.distancetoGo()!=0){
         Z.run();
         }
-      Z.moveto(yvalue*microstepsG/Factor2);
+      Z.moveto((long)(yvalue*3200/(3.2416*12.73)));
       
       while(Z.distancetoGo()!=0)
         Z.run();
@@ -336,15 +342,28 @@ void G0(int arg_cnt,char **args)//G1
 }
 
 void M3(int arg_cnt,char **args){//Laser On
-   digitalWrite(PUMP, LOW);
+   digitalWrite(PUMP_LARGE, LOW);
    Serial.println("ok");
 }
 
 
 void M4(int arg_cnt,char **args){//Laser On
-   digitalWrite(PUMP, HIGH); 
+   digitalWrite(PUMP_LARGE, HIGH); 
    Serial.println("ok");
 }
+
+
+void M32(int arg_cnt,char **args){//Pump Large  off
+   digitalWrite(PUMP_SMALL, HIGH); 
+   Serial.println("ok");
+}
+
+void M42(int arg_cnt,char **args){//Pump Small On
+   digitalWrite(PUMP_SMALL, LOW);
+   Serial.println("ok");
+}
+
+
 
 void M6(int arg_cnt,char **args){//microstepsG
    microstepsG = atoi(args[1]);
