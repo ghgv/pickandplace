@@ -9,9 +9,11 @@
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <QTimer>
+#include <QTime>
 #include <string.h>
 #include <QtMath>
 #include <vector>
+#include <QThread>
 #include <QSerialPortInfo>
 #include <windows.h>
 #include "cameraframegrabber.h"
@@ -30,11 +32,11 @@ QCamera *mCamera;
 QCameraViewfinder *mCameraViewfinder;
 QVBoxLayout *mLayout;
 float camera_angle=0;
-float offsetX=-42.1;
-float offsetY=-6;
+float offsetX=45;
+float offsetY=7;
 float offsetZ=3;
 
-float offsetX_Right=-46.4;
+float offsetX_Right=-47;
 float offsetY_Right=8.6;
 float offsetZ_Right=4.8;
 
@@ -88,6 +90,15 @@ struct sobely
     float d=0,e=0,f=0;
     float g=1,h=2,i=1;
 };
+
+void delay( int millisecondsToWait )
+{
+    QTime dieTime = QTime::currentTime().addMSecs( millisecondsToWait );
+    while( QTime::currentTime() < dieTime )
+    {
+        QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+    }
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -274,7 +285,7 @@ void MainWindow::rotorright()
     camera_angle=W;
     QString s= QString::number(W);
     ui->PosW->setText(s);
-    s="G1 E"+s+"\r";
+    s="G1 W"+s+"\r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 }
@@ -286,7 +297,7 @@ void MainWindow::rotorleft()
     camera_angle=W;
     QString s= QString::number(W);
     ui->PosW->setText(s);
-    s="G1 E"+s+"\r";
+    s="G1 W"+s+"\r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"X: "<<X<<"Y: "<<Y<<"Z: "<<Z<<"W: "<<W;
 }
@@ -340,7 +351,7 @@ int MainWindow::ArduCAMreceived()
              QImage foto;
              foto.loadFromData((unsigned char *)buffy.constData(),buffy.size(),"JPG");
              ui->Messages->appendPlainText("tail");
-             ui->pic->setPixmap(QPixmap::fromImage(foto));
+             ui->pic_2->setPixmap(QPixmap::fromImage(foto));
 
 
              ///Pipeline
@@ -355,7 +366,7 @@ int MainWindow::ArduCAMreceived()
              cv::Mat mask = cv::Mat::zeros(res.size(), res.type());
              cv::Mat boxy = cv::Mat::zeros(res.size(), res.type());
              cv::Mat dstImage = cv::Mat::zeros(res.size(), res.type());
-             cv::circle(mask, cv::Point(640/2, 480/2), 200, cv::Scalar(255, 255, 255), -1, 8, 0);
+             cv::circle(mask, cv::Point(1024/2, 768/2), 320, cv::Scalar(255, 255, 255), -1, 8, 0);
              //Now you can copy your source image to destination image with masking
              res.copyTo(dstImage, mask);
              cv::imwrite( "C://Users//German//Documents//programacion//serialarduino//Orig.jpg",dstImage );
@@ -427,7 +438,7 @@ int MainWindow::ArduCAMreceived()
              cvtColor(dstImage,dstImage, CV_HSV2BGR_FULL);
              //cvtColor(dstImage, dstImage, CV_BGR2RGB);
              if(bottomCamera)
-             ui->pic->setPixmap(QPixmap::fromImage(QImage(dstImage.data, dstImage.cols, dstImage.rows, dstImage.step, QImage::Format_RGB888)));
+                ui->pic_2->setPixmap(QPixmap::fromImage(QImage(dstImage.data, dstImage.cols, dstImage.rows, dstImage.step, QImage::Format_RGB888)));
 
 
              ///
@@ -661,10 +672,11 @@ void MainWindow::Goto()
 {
     QString s= QString::number(X);
     ui->PosX->setText(s);
-    s="G1 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+" \r";
+    s="G1 X"+ui->GotoX->text()+" Y"+ui->GotoY->text()+" Z"+ui->GotoZ->text()+" W"+ui->GotoW->text()+" \r";
     X=ui->GotoX->text().toFloat();
     Y=ui->GotoY->text().toFloat();
     Z=ui->GotoZ->text().toFloat();
+    W=ui->GotoW->text().toFloat();
     qDebug()<<"Going to "<<s.toStdString().c_str();
     serial->write(s.toStdString().c_str());
 
@@ -677,7 +689,7 @@ void MainWindow::Pick()
     float x,y,z;
     x=offsetX+X;
     y=offsetY+Y;
-    z=offsetZ;
+    z=-65;
     QString m = QString::number(x);
     QString n = QString::number(y);
     QString p=  QString::number(z);
@@ -687,7 +699,8 @@ void MainWindow::Pick()
     s="G1 Z"+p+" \r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
-    serial->write("M3\r");//Pump On
+    serial->write("M32\r");//Pump On
+
     x=x-offsetX;
     y=y-offsetY;
     z=Z;
@@ -712,7 +725,7 @@ void MainWindow::Place()
     float x,y,z;
     x=offsetX+X;
     y=offsetY+Y;
-    z=offsetZ;
+    z=-65;
     QString m = QString::number(x);
     QString n = QString::number(y);
     QString p=  QString::number(z);
@@ -722,7 +735,8 @@ void MainWindow::Place()
     s="G1 Z"+p+" \r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
-    serial->write("M4\r");//Pump Off
+    serial->write("M42\r");//Pump Off
+     Sleep(1000);
     x=x-offsetX;
     y=y-offsetY;
     z=Z;
@@ -901,8 +915,8 @@ void MainWindow::on_CameraPort_clicked()
 void MainWindow::on_bCapture_clicked()
 {
     char *tx_data = new char[2];
-    //tx_data[0] = (char)0x02;//Change to 1024x768
-    tx_data[0] = (char)0x01;//Change to 640x480
+    tx_data[0] = (char)0x02;//Change to 1024x768
+    //tx_data[0] = (char)0x01;//Change to 640x480
     tx_data[1] = (char)0x10;//Shot a picture
     if(bCamera->isOpen())
          bCamera->write(tx_data, 2);
@@ -1012,4 +1026,16 @@ void MainWindow::on_Place_603_clicked()
 void MainWindow::on_Release_clicked()
 {
     serial->write("M4\r"); //Pump Small On
+}
+
+void MainWindow::on_A_clicked()
+{
+    QString s= QString::number(X);
+    ui->PosX->setText(s);
+    s="G1 X46.7 Y-70.8 Z-40\r";
+    X=46.7;
+    Y=-70.8;
+    Z=-40;
+    qDebug()<<"Going to "<<s.toStdString().c_str();
+    serial->write(s.toStdString().c_str());
 }

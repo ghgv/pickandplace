@@ -74,7 +74,7 @@ void draw(void){
 void setup() {                
   
 
-  Serial.println("PnP v1.0 8OCT2018");
+  Serial.println("PnP v1.0 12DEC2018");
   cmdInit(115200);
   
   cmdAdd("pos",positioner);
@@ -314,7 +314,7 @@ void G1(int arg_cnt,char **args)//G0
     
 
 
-    if(command[i].charAt(0)=='E' ){
+    if(command[i].charAt(0)=='W' ){  //Rotor Large
       yvalue = atof(command[i].substring(1).c_str());
       while(E0.distancetoGo()!=0){
         E0.run();
@@ -427,6 +427,12 @@ void G92(int arg_cnt,char **args)//Set Coordinate
       yvalue = atof(command[i].substring(1).c_str());
       Z.DISTANCE=0;
       Z.StepCounter=0;
+
+    }
+    if(command[i].charAt(0)=='W'){
+      yvalue = atof(command[i].substring(1).c_str());
+      E0.DISTANCE=0;
+      E0.StepCounter=0;
 
     }
     i++;
