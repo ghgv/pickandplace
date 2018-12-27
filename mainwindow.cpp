@@ -918,6 +918,7 @@ void MainWindow::on_bCapture_clicked()
     tx_data[0] = (char)0x02;//Change to 1024x768
     //tx_data[0] = (char)0x01;//Change to 640x480
     tx_data[1] = (char)0x10;//Shot a picture
+
     if(bCamera->isOpen())
          bCamera->write(tx_data, 2);
 }
@@ -1038,4 +1039,18 @@ void MainWindow::on_A_clicked()
     Z=-40;
     qDebug()<<"Going to "<<s.toStdString().c_str();
     serial->write(s.toStdString().c_str());
+}
+
+void MainWindow::on_sendButton_2_clicked(bool checked)
+{
+    char *tx_data = new char[2];
+    tx_data[0] = (char)0x50;//Change to 1024x768
+    //tx_data[0] = (char)0x01;//Change to 640x480
+    tx_data[1] = (char)0x10;//Shot a picture
+
+    if(bCamera->isOpen()){
+          //qDebug()<<"sending" << s.toStdString().c_str();
+         bCamera->write(tx_data,2);
+    }
+
 }

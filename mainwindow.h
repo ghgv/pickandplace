@@ -73,6 +73,7 @@ private slots:
     void on_Place_603_clicked();
     void on_Release_clicked();
     void on_A_clicked();
+    void on_sendButton_2_clicked(bool checked);
 };
 
 #endif // MAINWINDOW_H

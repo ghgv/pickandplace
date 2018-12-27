@@ -261,7 +261,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_4">
      <attribute name="title">
@@ -441,7 +441,7 @@
        <rect>
         <x>310</x>
         <y>150</y>
-        <width>51</width>
+        <width>71</width>
         <height>23</height>
        </rect>
       </property>
@@ -452,9 +452,9 @@
      <widget class="QPushButton" name="Leds_OFF">
       <property name="geometry">
        <rect>
-        <x>370</x>
+        <x>400</x>
         <y>150</y>
-        <width>51</width>
+        <width>71</width>
         <height>23</height>
        </rect>
       </property>
@@ -467,7 +467,7 @@
        <rect>
         <x>310</x>
         <y>180</y>
-        <width>61</width>
+        <width>71</width>
         <height>23</height>
        </rect>
       </property>
@@ -478,9 +478,9 @@
      <widget class="QPushButton" name="Motors18">
       <property name="geometry">
        <rect>
-        <x>380</x>
+        <x>400</x>
         <y>180</y>
-        <width>61</width>
+        <width>71</width>
         <height>23</height>
        </rect>
       </property>
