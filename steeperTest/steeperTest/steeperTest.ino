@@ -79,6 +79,8 @@ void setup() {
   
   cmdAdd("pos",positioner);
   cmdAdd("M17", M17);
+  cmdAdd("H", H);
+  cmdAdd("L", L);
   cmdAdd("M18", M18);
   cmdAdd("M3", M3);
   cmdAdd("M4", M4);
@@ -142,6 +144,16 @@ void loop() {
   
 }
 
+void H(int arg_cnt, char **args)//High Speed
+{
+  
+}
+void L(int arg_cnt, char **args)//High Speed
+{
+  
+}
+
+
 void M17(int arg_cnt, char **args)//Enabled
 {
        digitalWrite(Z_ENABLE_PIN, 0);
@@ -150,6 +162,8 @@ void M17(int arg_cnt, char **args)//Enabled
        Serial.println("Motors enabled");
 
 }
+
+
 
 void M18(int arg_cnt, char **args)//Disabled
 {

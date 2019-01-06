@@ -22,12 +22,14 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
+#include <QSettings>
 using namespace std;
 
 
 QSerialPort *serial,*bCamera;
 QVSerialPort *Kam;
 QString str,deltaf;
+QString SettingsFile;
 QCamera *mCamera;
 QCameraViewfinder *mCameraViewfinder;
 QVBoxLayout *mLayout;
@@ -35,6 +37,13 @@ float camera_angle=0;
 float offsetX=45;
 float offsetY=7;
 float offsetZ=3;
+float radius=300; //The mask radius
+float chip_offsetX=0;
+float chip_offsetY=0;
+float angle=0;
+float CalibrationX;
+float CalibrationY,CalibrationW;
+
 
 float offsetX_Right=-47;
 float offsetY_Right=8.6;
@@ -105,6 +114,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    SettingsFile=QApplication::applicationDirPath() + "/settings.ini";
+    loadSettings();
 
     //cv::Mat srcImage = cv::imread("C://Users//German//Documents//programacion//serialarduino//1.jpg", CV_LOAD_IMAGE_GRAYSCALE);
     cv::Mat srcImage = cv::imread("C://Users//German//Documents//programacion//serialarduino//1.jpg", 1);
@@ -366,7 +377,7 @@ int MainWindow::ArduCAMreceived()
              cv::Mat mask = cv::Mat::zeros(res.size(), res.type());
              cv::Mat boxy = cv::Mat::zeros(res.size(), res.type());
              cv::Mat dstImage = cv::Mat::zeros(res.size(), res.type());
-             cv::circle(mask, cv::Point(1024/2, 768/2), 320, cv::Scalar(255, 255, 255), -1, 8, 0);
+             cv::circle(mask, cv::Point(1024/2, 768/2), radius, cv::Scalar(255, 255, 255), -1, 8, 0);
              //Now you can copy your source image to destination image with masking
              res.copyTo(dstImage, mask);
              cv::imwrite( "C://Users//German//Documents//programacion//serialarduino//Orig.jpg",dstImage );
@@ -389,8 +400,8 @@ int MainWindow::ArduCAMreceived()
              ui->Messages->appendPlainText("hh: ");
              ui->Messages->appendPlainText(QString::number(hh));
              //cv::inRange(dstImage, cv::Scalar(h,s,v),cv::Scalar(hh, ss,vv), imgThreshold);
-             cv::imwrite( "C://Users//German//Documents//programacion//serialarduino//Threshold.jpg",imgThreshold );
-             cv::imwrite( "C://Users//German//Documents//programacion//serialarduino//3.jpg",dstImage );
+             //cv::imwrite( "C://Users//German//Documents//programacion//serialarduino//Threshold.jpg",imgThreshold );
+             //cv::imwrite( "C://Users//German//Documents//programacion//serialarduino//3.jpg",dstImage );
              res.copyTo(dstImage, imgThreshold);
 
              std::vector<cv::Point> points;
@@ -401,30 +412,35 @@ int MainWindow::ArduCAMreceived()
                  points.push_back(it.pos());
              cv::RotatedRect box = cv::minAreaRect(cv::Mat(points));
 
-             double angle = box.angle;
+             angle = box.angle;
              cv::Point2f center= box.center;
              if (angle < -45.){
                angle += 90.;
                ui->Messages->appendPlainText("Angle: ");
                ui->Messages->appendPlainText(QString::number(angle));
                qDebug()<<"Angle"<<angle;
-               ui->Messages->appendPlainText("Center x: ");
-               ui->Messages->appendPlainText(QString::number(center.x));
-               ui->Messages->appendPlainText("Center y: ");
-               ui->Messages->appendPlainText(QString::number(center.y));
-               qDebug()<<"Center X: "<<center.x;
-               qDebug()<<"Center Y: "<<center.y;
+               chip_offsetX=(1024/2-center.x)*12/403;
+               chip_offsetY=(768/2-center.y)*12/403;
+               ui->Messages->appendPlainText("Offset Center x: ");
+               ui->Messages->appendPlainText(QString::number(chip_offsetX));
+               ui->Messages->appendPlainText("Offset Center y: ");
+               ui->Messages->appendPlainText(QString::number(chip_offsetY));
+
+               qDebug()<<"Offset X: "<<chip_offsetX;
+               qDebug()<<"Offset Y: "<<chip_offsetY;
              }
              else{
                  ui->Messages->appendPlainText("Angle: ");
                  ui->Messages->appendPlainText(QString::number(angle));
                  qDebug()<<"Angle"<<angle;
-                 ui->Messages->appendPlainText("Center x: ");
-                 ui->Messages->appendPlainText(QString::number(center.x));
-                 ui->Messages->appendPlainText("Center y: ");
-                 ui->Messages->appendPlainText(QString::number(center.y));
-                 qDebug()<<"Center X: "<<center.x;
-                 qDebug()<<"Center Y: "<<center.y;
+                 chip_offsetX=(1024/2-center.x)*12/403;
+                 chip_offsetY=(768/2-center.y)*12/403;
+                 ui->Messages->appendPlainText("Offset Center x: ");
+                 ui->Messages->appendPlainText(QString::number(chip_offsetX));
+                 ui->Messages->appendPlainText("Offset Center y: ");
+                 ui->Messages->appendPlainText(QString::number(chip_offsetY));
+                 qDebug()<<"Offset X: "<<chip_offsetX;
+                 qDebug()<<"Offset Y: "<<chip_offsetY;
              }
 
              cv::Point2f vertices[4];
@@ -433,11 +449,20 @@ int MainWindow::ArduCAMreceived()
                  cv::line(boxy, vertices[i], vertices[(i + 1) % 4], cv::Scalar(255, 0, 0), 1, CV_AA);
                  cv::line(dstImage, vertices[i], vertices[(i + 1) % 4], cv::Scalar(255, 255, 0), 3, CV_AA);
                  }
-             cv::imwrite( "C://Users//German//Documents//programacion//serialarduino//boxy.jpg",boxy );
+             vertices[0]={1024/2-403/2,768/2-403/2};
+             vertices[1]={1024/2+403/2,768/2-403/2};
+             vertices[2]={1024/2+403/2,768/2+403/2};
+             vertices[3]={1024/2-403/2,768/2+403/2};
+             for(int i = 0; i < 4; ++i){
+                 //cv::line(boxy, vertices[i], vertices[(i + 1) % 4], cv::Scalar(155, 0, 0), 1, CV_AA);
+                 cv::line(dstImage, vertices[i], vertices[(i + 1) % 4], cv::Scalar(255, 255,255), 7, CV_AA);
+                 }
+
+             //cv::imwrite( "C://Users//German//Documents//programacion//serialarduino//boxy.jpg",boxy );
 
              cvtColor(dstImage,dstImage, CV_HSV2BGR_FULL);
              //cvtColor(dstImage, dstImage, CV_BGR2RGB);
-             if(bottomCamera)
+             if(bottomCamera) //Fileters
                 ui->pic_2->setPixmap(QPixmap::fromImage(QImage(dstImage.data, dstImage.cols, dstImage.rows, dstImage.step, QImage::Format_RGB888)));
 
 
@@ -610,8 +635,8 @@ void MainWindow::handleFrame(QImage imageObject)
 
 
     QPixmap pixmap = QPixmap::fromImage(imageObject);
-    if(topCamera)
-        ui->pic->setPixmap(pixmap);
+    //if(topCamera)
+    ui->pic->setPixmap(pixmap);
     this->update();
 
 }
@@ -696,6 +721,7 @@ void MainWindow::Pick()
     s="G1 X"+m+" Y"+n+" \r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"Going to pick at:"<<s.toStdString().c_str();
+
     s="G1 Z"+p+" \r";
     serial->write(s.toStdString().c_str());
     qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
@@ -704,6 +730,7 @@ void MainWindow::Pick()
     x=x-offsetX;
     y=y-offsetY;
     z=Z;
+
     m = QString::number(x);
     n = QString::number(y);
     p = QString::number(z);
@@ -722,19 +749,27 @@ void MainWindow::Pick()
 void MainWindow::Place()
 {
     QString s;
-    float x,y,z;
+    float x,y,z,w;
     x=offsetX+X;
     y=offsetY+Y;
-    z=-65;
-    QString m = QString::number(x);
-    QString n = QString::number(y);
+    w=W;
+    z=-63;
+    QString m = QString::number(x+chip_offsetX+CalibrationX);
+    QString n = QString::number(y-chip_offsetY+CalibrationY);
     QString p=  QString::number(z);
+    QString q=  QString::number(w+angle);
+    ui->Messages->appendPlainText("Anglo de emplazamiento: ");
+    ui->Messages->appendPlainText(QString::number(w+angle));
+    angle=0;
+
     s="G1 X"+m+" Y"+n+" \r";
     serial->write(s.toStdString().c_str());
-    qDebug()<<"Going to pick at:"<<s.toStdString().c_str();
+    s="G1 W"+q+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Going to place at W: "<<s.toStdString().c_str();
     s="G1 Z"+p+" \r";
     serial->write(s.toStdString().c_str());
-    qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
+    //qDebug()<<"Going down to pick on:"<<s.toStdString().c_str();
     serial->write("M42\r");//Pump Off
      Sleep(1000);
     x=x-offsetX;
@@ -783,6 +818,7 @@ void MainWindow::on_PLCC28_clicked()
     offsetZ=4.572;
     package_width=12.573;
     package_large=12.573;
+    radius =280;
 }
 
 void MainWindow::on_TQFP44_clicked()
@@ -790,6 +826,7 @@ void MainWindow::on_TQFP44_clicked()
     offsetZ=1;
     package_width=10;
     package_large=10;
+    radius=300;
 }
 
 void MainWindow::on_A1_clicked()
@@ -803,6 +840,20 @@ void MainWindow::on_B_clicked()
     X2=X;
     Y2=Y;
     hypo=sqrt((X2-X1)*(X2-X1)+(Y2-Y1)*(Y2-Y1));
+
+    QString s;
+    float x,y,w;
+    x=X;
+    y=Y;
+    w=W;
+    QString m = QString::number(x+chip_offsetX);
+    QString n = QString::number(y-chip_offsetY);
+    QString q=  QString::number(w+angle);
+    s="G1 X"+m+" Y"+n+" \r";
+    serial->write(s.toStdString().c_str());
+    s="G1 W"+q+" \r";
+    serial->write(s.toStdString().c_str());
+    qDebug()<<"Fixing:"<<s.toStdString().c_str();
 
 }
 
@@ -1039,6 +1090,22 @@ void MainWindow::on_A_clicked()
     Z=-40;
     qDebug()<<"Going to "<<s.toStdString().c_str();
     serial->write(s.toStdString().c_str());
+}
+
+void MainWindow::loadSettings(){
+    QString strKey("BottomCamera");
+    QSettings *settings;
+    settings= new QSettings(SettingsFile, QSettings::IniFormat);
+    qDebug()<<"Settings status:"<<settings->status();
+    qDebug()<<"Settings filename: "<<settings->fileName();
+    CalibrationX = settings->value("CalibrationX", 0).toFloat();
+    CalibrationY = settings->value("CalibrationY", 0).toFloat();
+    CalibrationW = settings->value("CalibrationW", 0).toFloat();
+
+    qDebug()<<"Settings file:"<<SettingsFile;
+    qDebug()<<"Settings X "<<CalibrationX;
+    qDebug()<<"Settings Y "<<CalibrationY;
+    qDebug()<<"Settings Z "<<CalibrationW;
 }
 
 void MainWindow::on_sendButton_2_clicked(bool checked)
